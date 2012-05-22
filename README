@@ -1,0 +1,17 @@
+run some qa checks on the last $x commits, in a Koha git repo
+
+cd to your koha git repo
+    $ cd koha/git
+
+apply a new patch to test
+    $ git bz apply 4460
+
+run some Koha qa-tests on that patch :)
+    $ koha-qa.pl -c 1
+    starting perlcritic-progressive tests... OK
+    starting 'perl -c' syntax tests... OK
+    starting xt/tt_valid.t tests... OK
+    starting xt/author/vaild-template.t tests... FAIL
+        /koha-tmpl/intranet-tmpl/prog/en/modules/catalogue/detail.tt FAIL
+        /koha-tmpl/opac-tmpl/prog/en/modules/opac-user.tt FAIL
+
