@@ -7,6 +7,7 @@ use Test::Perl::Critic::Progressive qw / get_history_file/;
 
 use Getopt::Long;
 use List::MoreUtils qw(uniq);
+use QohA::FileFind;
 
 my $v   = 0;
 my $cnt = 1;
@@ -35,7 +36,7 @@ chomp $br;
 qx|git checkout $br  2> /dev/null  |;
 
 # get files  from commit
-my @a = get_filelist();
+my @a = QohA::FileFind::get_perl_filelist($cnt);
 
 exit unless @a;
 
@@ -127,30 +128,6 @@ sub run_critic {
 
         }
     }
-
-}
-
-sub get_filelist {
-    my $rc;
-    my @rca = qx|git log --oneline  --numstat -$cnt|;
-### @rca
-
-    my @hs;
-    my @fs;
-    foreach my $z (@rca) {
-        next if ( $z =~ /^\w{7} / );
-
-        next if $z =~ /.tt$/;
-        next unless $z =~ qr/\.pm$|\.pl$|\.t$/;
-
-        my @a = split /\t/, $z;
-### @a
-        chomp $a[2];
-        push @hs,  $a[2];
-    }
-    @hs = uniq(@hs);
-### @hs
-    return @hs;
 
 }
 

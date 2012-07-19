@@ -9,6 +9,8 @@ use List::MoreUtils qw(uniq);
 
 use Getopt::Long;
 
+use QohA::FileFind;
+
 my $cnt = 1;
 my $v   = 0;
 
@@ -32,7 +34,7 @@ my $run = 1;
 #get current branch
 
 
-my @a = get_filelist();
+my @a = QohA::FileFind::get_test_filelist($cnt);
 
 exit unless @a;
 
@@ -137,28 +139,6 @@ sub prove_templates {
 
 
 
-sub get_filelist {
-    my $rc;
-    my @rca = qx|git log --oneline  --numstat -$cnt|;
-### @rca
-
-    my @hs;
-    my @fs;
-    foreach my $z (@rca) {
-        next if ( $z =~ /^\w{7} / );
-
-        next unless $z =~ /.t$/i;
-
-        my @a = split /\t/, $z;
-        push @hs, chomp $a[2];
-        push @hs, $a[2];
-    }
-    @hs = uniq(@hs);
-### @hs
-
-    return @hs;
-
-}
 
 
 
