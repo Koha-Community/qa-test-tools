@@ -3,7 +3,7 @@
 use Modern::Perl;
 use Test::Perl::Critic::Progressive qw / get_history_file/;
 
-# use Smart::Comments '#####';
+#  use Smart::Comments ;
 use List::Compare;
 use List::MoreUtils qw(uniq);
 
@@ -147,13 +147,15 @@ sub get_filelist {
     foreach my $z (@rca) {
         next if ( $z =~ /^\w{7} / );
 
-        next unless $r =~ /.t$/i;
+        next unless $z =~ /.t$/i;
 
         my @a = split /\t/, $z;
         push @hs, chomp $a[2];
         push @hs, $a[2];
     }
     @hs = uniq(@hs);
+### @hs
+
     return @hs;
 
 }

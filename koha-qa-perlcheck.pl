@@ -3,7 +3,7 @@
 use Modern::Perl;
 use Test::Perl::Critic::Progressive qw / get_history_file/;
 
-# use Smart::Comments '###';
+# use Smart::Comments ;
 
 use Getopt::Long;
 use List::MoreUtils qw(uniq);
@@ -110,6 +110,7 @@ sub run_check {
     return @err;
 }
 
+
 sub get_filelist {
     my $rc;
     my @rca = qx|git log --oneline  --numstat -$cnt|;
@@ -121,14 +122,16 @@ sub get_filelist {
         next if ( $z =~ /^\w{7} / );
 
         next if $z =~ /.tt$/;
-        next unless $r =~ /\.pm$|\.pl$|\.t$/i;
+        next unless $z =~ qr/\.pm$|\.pl$|\.t$/;
 
+        my @a = split /\t/, $z;
+### @a
         chomp $a[2];
-        push @hs, $a[2];
+        push @hs,  $a[2];
     }
     @hs = uniq(@hs);
-    return @hs;
 ### @hs
+    return @hs;
 
 }
 

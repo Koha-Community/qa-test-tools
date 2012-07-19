@@ -140,14 +140,16 @@ sub get_filelist {
     foreach my $z (@rca) {
         next if ( $z =~ /^\w{7} / );
 
-        next if $r =~ /.tt$/;
-        next unless $r =~ /\.pm$|\.pl$|\.t$/i;
+        next if $z =~ /.tt$/;
+        next unless $z =~ qr/\.pm$|\.pl$|\.t$/;
 
         my @a = split /\t/, $z;
-        push @hs, chomp $a[2];
-        push @hs, $a[2];
+### @a
+        chomp $a[2];
+        push @hs,  $a[2];
     }
     @hs = uniq(@hs);
+### @hs
     return @hs;
 
 }
