@@ -9,6 +9,8 @@ use Getopt::Long;
 
 use List::MoreUtils qw(uniq);
 
+use QohA::Git;
+
 my $c = 1;
 my $v = 0;
 
@@ -21,7 +23,8 @@ my $r = GetOptions(
 ### $c
 
 my $rc;
-my @rca = qx|git log --oneline  --numstat -$c|;
+my @rca = QohA::Git::log( $c );
+
 ### @rca
 
 #my $h = shift @rca;

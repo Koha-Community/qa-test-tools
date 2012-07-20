@@ -4,6 +4,8 @@ use Modern::Perl;
 
 use List::MoreUtils qw(uniq);
 
+use QohA::Git;
+
 BEGIN {
   use Exporter (); 
   use vars qw(@ISA @EXPORT @EXPORT_OK);
@@ -15,7 +17,7 @@ BEGIN {
 sub get_test_filelist {
     my ($cnt) = @_;
     my $rc;
-    my @rca = qx|git log --oneline  --numstat -$cnt|;
+    my @rca = QohA::Git::log( $cnt );
 ### @rca
 
     my @hs;
@@ -39,7 +41,7 @@ sub get_test_filelist {
 sub get_perl_filelist {
     my ($cnt) = @_;
     my $rc;
-    my @rca = qx|git log --oneline  --numstat -$cnt|;
+    my @rca = QohA::Git::log( $cnt );
 ### @rca
 
     my @hs;

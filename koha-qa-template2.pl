@@ -14,6 +14,9 @@ use Test::More;
 
 use List::MoreUtils qw(uniq);
 
+use QohA::Git;
+use QohA::FileFind;
+
 #use Smart::Comments;
 
 # use FindBin;
@@ -36,33 +39,24 @@ my $run = 1;
 
 #### $cnt
 
-#qx|git checkout master  2> /dev/null |;
-
 #get current branch
 
-my @files = get_filelist();
+my @files = QohA::FileFind::get_test_filelist( $cnt );
 
 exit unless @files;
 
-
-my $br = qx/git branch|grep '*'/;
-$br =~ s/\* //g;
-chomp $br;
+my $br = QohA::Git::get_current_branch();
 #### $br
-
-qx|git checkout $br  2> /dev/null  |;
 
 ### @files
 
 # get files  from commit
 
-qx|git checkout $br  2> /dev/null |;
+QohA::Git::change_branch( $br );
 
-qx|git branch -D qa1 2> /dev/null  |;
-qx|git branch qa1 2> /dev/null  |;
-qx|git checkout qa1 2> /dev/null  |;
-
-qx|git reset --hard HEAD~$cnt 2> /dev/null  |;
+QohA::Git::delete_branch( 'qa1' );
+QohA::Git::create_and_change_branch( 'qa1' );
+QohA::Git::reset_hard( $cnt );
 
 # create temp git branch
 
@@ -72,7 +66,7 @@ my $cmd = "koha-qa-template2-sub.pl  @files";
 my ( $success1, $error_code1, $full_buf1, $stdout_buf1, $stderr_buf1 ) =
   run( command => $cmd, verbose => 0 );
 
-qx|git checkout $br 2> /dev/null |;
+QohA::Git::change_branch( $br );
 
 ###  $cmd 
 my ( $success2, $error_code2, $full_buf2, $stdout_buf2, $stderr_buf2 ) =
@@ -130,28 +124,6 @@ if (@fail) {
 }
 
 ### @fail
-
-sub get_filelist {
-    my $rc;
-    my @rca = qx|git log --oneline  --numstat -$cnt|;
-### @rca
-
-    my @hs;
-    my @fs;
-    foreach my $z (@rca) {
-        next if ( $z =~ /^\w{7} / );
-
-        next unless $z =~ /.tt$/;
-        my @a = split /\t/, $z;
-
-        chomp $a[2];
-        push @hs,  $a[2];
-    }
-    @hs = uniq(@hs);
-    return @hs;
-### @hs
-
-}
 
 =head1 AUTHOR
 Mason James <mtj at kohaaloha.com>

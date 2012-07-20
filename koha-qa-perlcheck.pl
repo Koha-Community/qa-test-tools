@@ -8,6 +8,9 @@ use Test::Perl::Critic::Progressive qw / get_history_file/;
 use Getopt::Long;
 use List::MoreUtils qw(uniq);
 
+use QohA::FileFind;
+use QohA::Git;
+
 my $v   = 0;
 my $cnt = 1;
 
@@ -23,38 +26,30 @@ my $run = 1;
 
 #### $cnt
 
-#qx|git checkout master  2> /dev/null |;
-
 #get current branch
 
-my $br = qx/git branch|grep '*'/;
-$br =~ s/\* //g;
-chomp $br;
+my $br = QohA::Git::get_current_branch;
 #### $br
 
-qx|git checkout $br  2> /dev/null  |;
+QohA::Git::change_branch( $br );
 
 # get files  from commit
-my @a = get_filelist();
+my @a = QohA::FileFind::get_perl_filelist( $cnt );
 
 exit unless @a; 
 
 #####  @a
 
-qx|git checkout $br  2> /dev/null |;
-
-qx|git branch -D qa1 2> /dev/null  |;
-qx|git branch qa1 2> /dev/null  |;
-qx|git checkout qa1 2> /dev/null  |;
-
-qx|git reset --hard HEAD~$cnt 2> /dev/null  |;
+QohA::Git::delete_branch( 'qa1' );
+QohA::Git::create_and_change_branch( 'qa1' );
+QohA::Git::reset_hard( $cnt );
 
 # create temp git branch
 my $f = get_history_file();
 
 my @errs1 = run_check();
 
-qx|git checkout $br 2> /dev/null |;
+QohA::Git::change_branch( $br );
 
 #exit;
 
@@ -96,9 +91,10 @@ print @fail3;
 
 sub run_check {
 
-    my @a = get_filelist();
+    my @a = QohA::FileFind::get_perl_filelist($cnt);
     my @err;
     foreach my $f (@a) {
+        # FIXME Why don't run with -wc ?
         my @rs = qx |perl -c $f 2>&1  |;
         my $rs = qx |perl -c $f 2>&1  |;
         #### @rs
@@ -110,30 +106,6 @@ sub run_check {
     return @err;
 }
 
-
-sub get_filelist {
-    my $rc;
-    my @rca = qx|git log --oneline  --numstat -$cnt|;
-### @rca
-
-    my @hs;
-    my @fs;
-    foreach my $z (@rca) {
-        next if ( $z =~ /^\w{7} / );
-
-        next if $z =~ /.tt$/;
-        next unless $z =~ qr/\.pm$|\.pl$|\.t$/;
-
-        my @a = split /\t/, $z;
-### @a
-        chomp $a[2];
-        push @hs,  $a[2];
-    }
-    @hs = uniq(@hs);
-### @hs
-    return @hs;
-
-}
 
 =head1 AUTHOR
 Mason James <mtj at kohaaloha.com>

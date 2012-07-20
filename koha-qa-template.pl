@@ -29,8 +29,6 @@ my $run = 1;
 
 #### $cnt
 
-#qx|git checkout master  2> /dev/null |;
-
 #get current branch
 
 
@@ -43,22 +41,18 @@ $br =~ s/\* //g;
 chomp $br;
 #### $br
 
-qx|git checkout $br  2> /dev/null  |;
-
 # get files  from commit
 
-qx|git checkout $br  2> /dev/null |;
+QohA::Git::change_branch( $br );
 
-qx|git branch -D qa1 2> /dev/null  |;
-qx|git branch qa1 2> /dev/null  |;
-qx|git checkout qa1 2> /dev/null  |;
-
-qx|git reset --hard HEAD~$cnt 2> /dev/null  |;
+QohA::Git::delete_branch( 'qa1' );
+QohA::Git::create_and_change_branch( 'qa1' );
+QohA::Git::reset_hard( $cnt );
 
 # create temp git branch
 my @err1 = prove_templates();
 
-qx|git checkout $br 2> /dev/null |;
+QohA::Git::change_branch( $br );
 
 # change to master branch
 my @err2 = prove_templates();
@@ -135,17 +129,6 @@ sub prove_templates {
     return @errs;
 
 }
-
-
-
-
-
-
-
-
-
-
-
 
 =head1 AUTHOR
 Mason James <mtj at kohaaloha.com>
