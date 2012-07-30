@@ -3,13 +3,14 @@
 use Modern::Perl;
 use Test::Perl::Critic::Progressive qw / get_history_file/;
 
-#use Smart::Comments;
-
 use Getopt::Long;
 
 use List::MoreUtils qw(uniq);
 
+use QohA::Errors;
 use QohA::Git;
+use QohA::Template;
+use QohA::Perl;
 
 my $c = 1;
 my $v = 0;
@@ -20,65 +21,39 @@ my $r = GetOptions(
     'c:i' => \$c,
 );
 
-### $c
+my $br = QohA::Git::get_current_branch;
 
-my $rc;
-my @rca = QohA::Git::log( $c );
+eval {
+    say QohA::Git::log_as_string($c);
 
-### @rca
+    print "\n- perlcritic-progressive tests...";
+    my ( $new_fails, $already_fails ) = QohA::Perl::run_perl_critic($c);
+    say QohA::Errors::display($new_fails);
 
-#my $h = shift @rca;
-#print "- commit $h";
-my @hs;
-my @fs;
+    print "\n- perl -c syntax tests...";
+    ( $new_fails, $already_fails ) = QohA::Perl::run_check_compil($c);
+    say QohA::Errors::display($new_fails);
 
-#    print "* changed files...\n";
-foreach my $z (@rca) {
-    if ( $z =~ /^\w{7} / ) {
-        push @hs, $z;
-        next;
-    }
-    else {
-        push @fs, $z;
-    }
+    print "\n- xt/tt_valid.t tests...";
+
+    # TODO with verbose mode, display $already_fails
+    ( $new_fails, $already_fails ) = QohA::Template::run_tt_valid($c);
+    say QohA::Errors::display_with_files($new_fails);
+
+    print "\n- xt/author/valid-template.t tests...";
+    ( $new_fails, $already_fails ) = QohA::Template::run_xt_valid_templates($c);
+    say QohA::Errors::display_with_files($new_fails);
+
+};
+
+if ($@) {
+    say "\n\nAn error occured : $@";
 }
-
-my $h = pop @hs;
-print "- $h";
-
-foreach my $z (@fs) {
-    my @a = split /\t/, $z;
-    $z = $a[2];
-    print "\t$z";
-
-}
-### @fs
-
-@fs = uniq(@fs);
-
-#    print " -\n";
-### @hs
-
-#exit;
-
-print "- perlcritic-progressive tests...";
-$rc = qx| koha-qa-critic.pl -v $v -c $c |;
-print $rc ? " FAIL\n$rc" : " OK\n";
-
-print "- perl -c syntax tests...";
-$rc = qx |koha-qa-perlcheck.pl -v $v -c $c |;
-print $rc ? " FAIL\n$rc" : " OK\n";
-
-print "- xt/tt_valid.t tests...";
-$rc = qx |koha-qa-template.pl -v $v -c $c |;
-print $rc ? " FAIL\n$rc" : " OK\n";
-
-print "- xt/author/vaild-template.t tests...";
-$rc = qx |koha-qa-template2.pl -v $v -c $c |;
-print $rc ? " FAIL\n$rc" : " OK\n";
+QohA::Git::change_branch($br);
 
 =head1 AUTHOR
 Mason James <mtj at kohaaloha.com>
+Jonathan Druart <jonathan.druart@biblibre.com>
 
 =head1 COPYRIGHT AND LICENSE
 

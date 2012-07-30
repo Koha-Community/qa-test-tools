@@ -6,62 +6,53 @@ use List::MoreUtils qw(uniq);
 
 use QohA::Git;
 
-BEGIN {
-  use Exporter (); 
-  use vars qw(@ISA @EXPORT @EXPORT_OK);
-  @ISA = qw(Exporter);
-  @EXPORT_OK = qw(get_test_filelist get_perl_filelist);
-}
-
-
-sub get_test_filelist {
+sub get_template_files {
     my ($cnt) = @_;
-    my $rc;
-    my @rca = QohA::Git::log( $cnt );
-### @rca
 
-    my @hs;
-    my @fs;
-    foreach my $z (@rca) {
-        next if ( $z =~ /^\w{7} / );
+    my @rca = QohA::Git::log($cnt);
 
-        next unless $z =~ /.t$/i;
+    my @test_files;
+    foreach my $f (@rca) {
+        chomp $f;
+        next if $f =~ /^\w{7} /;
 
-        my @a = split /\t/, $z;
-        push @hs, chomp $a[2];
-        push @hs, $a[2];
+        next unless $f =~ m{\.tt$};
+        push @test_files, $f;
     }
-    @hs = uniq(@hs);
-### @hs
-
-    return @hs;
+    @test_files = uniq(@test_files);
+    return @test_files;
 
 }
 
-sub get_perl_filelist {
+sub get_perl_files {
     my ($cnt) = @_;
-    my $rc;
-    my @rca = QohA::Git::log( $cnt );
-### @rca
 
-    my @hs;
-    my @fs;
-    foreach my $z (@rca) {
-        next if ( $z =~ /^\w{7} / );
+    my @rca = QohA::Git::log($cnt);
 
-        next if $z =~ /.tt$/;
-        next unless $z =~ qr/\.pm$|\.pl$|\.t$/;
+    my @perl_files;
+    foreach my $f (@rca) {
+        chomp $f;
+        next if $f =~ /^\w{7} /;
 
-        my @a = split /\t/, $z;
-### @a
-        chomp $a[2];
-        push @hs,  $a[2];
+        next unless $f =~ qr/\.pm$|\.pl$|\.t$/;
+        push @perl_files, $f;
+
     }
-    @hs = uniq(@hs);
-### @hs
-    return @hs;
-
+    @perl_files = uniq(@perl_files);
+    return @perl_files;
 }
-
 
 1;
+
+=head1 AUTHOR
+Mason James <mtj at kohaaloha.com>
+Jonathan Druart <jonathan.druart@biblibre.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is Copyright (c) 2012 by KohaAloha
+
+This is free software, licensed under:
+
+  The GNU General Public License, Version 3, June 2007
+=cut
