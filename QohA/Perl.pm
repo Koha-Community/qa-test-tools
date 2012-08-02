@@ -15,21 +15,6 @@ sub run_perl_critic {
     my @files = QohA::FileFind::get_perl_files($cnt);
     return unless @files;
 
-    #FIXME I'm very dirty !
-    # How can we execute progressive_critic_ok
-    # and get the results into a variable ?
-    open my $tmpfile, '>', '/tmp/qa-critic.pl'
-      or die "Can't open /tmp/qa-critic.pl";
-
-    print $tmpfile <<'END';
-#!/usr/bin/perl -w
-use Modern::Perl;
-use Test::Perl::Critic::Progressive ( ':all' );
-my $conf = pop @ARGV;
-set_history_file($conf);
-progressive_critic_ok(@ARGV);
-END
-
     my $br = QohA::Git::get_current_branch;
 
     QohA::Git::delete_branch('qa1');
@@ -60,7 +45,11 @@ sub run_critic {
             qx|rm $conf | if ( -e $conf );
         }
 
-        my $cmd = "perl /tmp/qa-critic.pl $f $conf";
+        my $cmd = qq{
+            perl -e "use Test::Perl::Critic::Progressive(':all');
+            set_history_file('$conf');
+            progressive_critic_ok('$f')"
+        };
 
         my ( $success, $error_code, $full_buf, $stdout_buf, $stderr_buf ) =
           run( command => $cmd, verbose => 0 );
@@ -75,6 +64,10 @@ sub run_critic {
         my @errors;
         for my $line (@$full_buf) {
             chomp $line;
+
+            die "The module Test::Perl::Critic::Progressive is not installed. Please install it !"
+                if $line =~ m{Can't locate Test/Perl/Critic/Progressive};
+
             $line =~ s/Expected no more than.*$//g;
             push @errors, $line if $line =~ qr/violation/;
         }

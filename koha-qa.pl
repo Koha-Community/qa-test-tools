@@ -12,6 +12,11 @@ use QohA::Git;
 use QohA::Template;
 use QohA::Perl;
 
+BEGIN{
+    eval "require Test::Perl::Critic::Progressive";
+    die "Test::Perl::Critic::Progressive is not installed \nrun:\ncpan install Test::Perl::Critic::Progressive\nto install it\n" if $@;
+};
+
 my $c = 1;
 my $v = 0;
 
