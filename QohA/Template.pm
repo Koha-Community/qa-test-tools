@@ -63,7 +63,7 @@ sub run_xt_valid_templates {
     my ($cnt) = @_;
 
     my @files = QohA::FileFind::get_template_files($cnt);
-    exit unless @files;
+    return unless @files;
 
     my $br = QohA::Git::get_current_branch();
 
