@@ -113,8 +113,12 @@ sub run_check_compil {
     for my $fail (@$fails) {
         if ( $fail !~ /OK/ ) {
             my $full = $fail;
-            $fail =~ m/compilation aborted at (.*) line/;
-            $fail = $1 . " FAIL\n";
+            if ( $fail =~ m/compilation aborted at (.*) line/ ) {
+                $fail = $1 . " FAIL\n";
+            } else {
+                # If the file does not exist anymore
+                $fail .= " FAIL\n";
+            }
 
             $fail .= "\t$full\n" if 0;
 

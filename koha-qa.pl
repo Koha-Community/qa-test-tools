@@ -40,7 +40,6 @@ eval {
     say QohA::Errors::display($new_fails);
 
     print "\n- xt/tt_valid.t tests...";
-
     # TODO with verbose mode, display $already_fails
     ( $new_fails, $already_fails ) = QohA::Template::run_tt_valid($c);
     say QohA::Errors::display_with_files($new_fails);
