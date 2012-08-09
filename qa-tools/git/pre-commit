@@ -1,0 +1,64 @@
+#!/usr/bin/perl
+
+# Put me in your .git/hooks
+
+use Modern::Perl;
+use File::Basename;
+$ENV{LOG} = "test";
+
+my $nb_errors = 0;
+for my $filepath (`git diff --cached --name-only`) {
+    chomp $filepath;
+    next if not -f $filepath;
+    open my $fh, "<" . $filepath;
+
+    my @file_infos = fileparse( $filepath, qr/\.[^.]*/ );
+    given ( $file_infos[2] ) {
+        when ( /^.pl|^.pm$/ ) {
+            system ( qq{/usr/bin/perl -wc $filepath} ) == 0 or say "\n" and $nb_errors++;
+        }
+        when ( /^.tt$/ ) {
+            #TODO
+        }
+        when ( /^.js$/ ) {
+            #TODO
+        }
+    }
+}
+
+my $filepath;
+for my $l ( split '\n', `git diff-index -p -M --cached HEAD` ) {
+    if ( $l =~ /^diff --git a\/([^ ]*) .*$/ ) {
+        $filepath = $1;
+    }
+    given ( $l ) {
+        when ( /console.log/ ) {
+            say "$filepath contains console.log ($l)";
+            $nb_errors++;
+        }
+        when ( /^\+ *warn Data::Dumper::Dumper / ) {
+            say "$filepath contains warn Data::Dumper::Dumper ($l)";
+            $nb_errors++;
+        }
+        # This one could be uncommented when Koha will have the Logger module
+        #when ( /^\+ *warn / ) {
+        #    say "$filepath contains warn ($l)";
+        #    $nb_errors++;
+        #}
+        when ( m/^<<<<<<</ or m/^>>>>>>>/ or m/^=======/ ) {
+            say "$filepath contains $& ($l)";
+        }
+        when ( /(\+|-)\s*use/ ) {
+            say "Patch add or remove a use in $filepath: $l";
+            say "You should run xt/find-undefined-subroutines.pl to check if nothing is broken";
+            $nb_errors++;
+        }
+    }
+}
+
+if ( $nb_errors ) {
+    say "\nAre you sure you want to commit ?";
+    say "You can commit with the --no-verify argument";
+    exit 1;
+}
+exit 0;
