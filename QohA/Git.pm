@@ -11,17 +11,28 @@ sub log_as_string {
     my ($cnt) = @_;
     my @logs = QohA::Git::log($cnt);
 
+    my $cc = get_prev_commit();
+
+    #warn $cc;
+
     my $r;
+    my $i = 0;
     foreach my $l (@logs) {
         chomp $l;
         if ( $l =~ /^\w{7} / ) {
-            $r .= "\t* $l\n";
+
+            $r .= "testing $cnt commit(s) (applied to commit $cc)" unless $i;
+            $l = substr $l, 0, 70;
+            $r .= "\n * $l";
+
         }
         else {
-            $r .= "\t\t$l\n";
+            $r .= "      $l";
         }
+        $r .= "\n";
+        $i++;
     }
-    $r;
+    return "$r\n";
 }
 
 sub create_and_change_branch {
@@ -39,7 +50,7 @@ sub delete_branch {
     qx|git branch -D $branchname 2> /dev/null|;
 }
 
-sub reset_hard {
+sub reset_hard_prev {
     my ($cnt) = @_;
     qx|git reset --hard HEAD~$cnt 2> /dev/null|;
 }
@@ -50,6 +61,17 @@ sub get_current_branch {
     $br =~ s/\* //g;
     chomp $br;
     return $br;
+}
+
+sub get_prev_commit {
+    my $num_of_commits = $main::num_of_commits;
+    my $cc =
+      qx/git log --abbrev-commit  --format=oneline -n 1 HEAD~$num_of_commits /;
+    $cc =~ s/ .*//;
+
+    chomp $cc;
+    return $cc;
+
 }
 
 1;

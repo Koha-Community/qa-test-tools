@@ -3,11 +3,17 @@ package QohA::Template;
 use Modern::Perl;
 use IPC::Cmd qw[can_run run];
 use File::Spec;
+
 use Template;
+use Data::Dumper;
+
+no strict 'refs';
 
 use QohA::FileFind;
 use QohA::Git;
 use QohA::Errors;
+
+#use Smart::Comments '####';
 
 BEGIN {
     use Exporter ();
@@ -18,30 +24,105 @@ BEGIN {
     );
 }
 
-sub run_tt_valid {
-    my ($cnt) = @_;
-    my @files = QohA::FileFind::get_template_files($cnt);
+sub init_tests {
 
-    return unless @files;
+#### @_
 
-    my $br = QohA::Git::get_current_branch();
+    my ( $commits, $test_name, $file_type ) = @_;
+    my @files = QohA::FileFind::get_files( $commits, $file_type );
+    return ( 'OK', undef ) unless @files;
 
-    QohA::Git::delete_branch('qa1');
-    QohA::Git::create_and_change_branch('qa1');
-    QohA::Git::reset_hard($cnt);
+    QohA::Git::delete_branch('qa-current-commit');
+    QohA::Git::create_and_change_branch('qa-current-commit');
+    my $new_errs = run_test( $test_name, \@files );
+    return ( 'OK', undef ) unless $new_errs;
 
-    my @err1 = QohA::Template::tt_valid();
+    QohA::Git::delete_branch('qa-prev-commit');
+    QohA::Git::create_and_change_branch('qa-prev-commit');
+    QohA::Git::reset_hard_prev($commits);
+    my $existing_errs = run_test( $test_name, \@files );
 
-    QohA::Git::change_branch($br);
+    QohA::Git::change_branch($main::br);
+    #### '333333333333333333333333333333333'
+    #### $new_errs
+    $new_errs = QohA::Errors::compare_errors( $existing_errs, $new_errs );
+    #### $new_errs
+    my ( $rc, $full ) = QohA::Errors::display_with_files($new_errs);
+#### $rc
+#### $full
 
-    my @err2 = QohA::Template::tt_valid();
+    return ( $rc, $full );
 
-    return QohA::Errors::compare_errors( \@err1, \@err2 );
+}
 
+sub run_test {
+#### 'run_test ---------------------------------'
+    my $test_name = shift;
+    my $files     = shift;
+
+#### $files
+
+    my $errs;
+
+    if ( $test_name eq 'xml_valid' ) {
+        $errs = QohA::Template::xml_valid();
+    }
+
+    elsif ( $test_name eq 'tt_valid' ) {
+        $errs = QohA::Template::tt_valid();
+    }
+
+    elsif ( $test_name eq 'valid_templates' ) {
+        $errs = QohA::Template::valid_templates($files);
+    }
+
+    elsif ( $test_name eq 'perlcritic_valid' ) {
+        $errs = QohA::Perl::valid_templates($files);
+    }
+
+    elsif ( $test_name eq 'perl_valid' ) {
+        $errs = QohA::Template::perl_valid($files);
+    }
+
+    return ($errs);
+
+}
+
+sub perl_valid {
+
+    my ($files) = @_;
+    my @err;
+    foreach my $f (@$files) {
+        my $rs = qx |perl -cw $f 2>&1  |;
+        push @err, $rs;
+    }
+    return \@err;
+}
+
+sub xml_valid {
+
+    my $cmd = "prove ./t/00-valid-xml.t  2>&1 ";
+    my @aa = run( command => $cmd, verbose => 0 );
+
+    my ( $success, $error_code, $full_buf, $stdout_buf, $stderr_buf ) =
+      run( command => $cmd, verbose => 0 );
+
+    my @errs;
+    for my $buf (@$full_buf) {
+        for my $line ( split '\n', $buf ) {
+            next unless $line;
+            if ( $line =~ m/parser error/ ) {
+                push @errs, $line;
+            }
+        }
+    }
+    return \@errs;
 }
 
 sub tt_valid {
     my $cmd = " prove ./xt/tt_valid.t 1> /dev/null ";
+
+    my @qq = run( command => $cmd, verbose => 0 );
 
     my ( $success, $error_code, $full_buf, $stdout_buf, $stderr_buf ) =
       run( command => $cmd, verbose => 0 );
@@ -56,36 +137,17 @@ sub tt_valid {
         }
     }
 
-    return @errs;
-}
-
-sub run_xt_valid_templates {
-    my ($cnt) = @_;
-
-    my @files = QohA::FileFind::get_template_files($cnt);
-    return unless @files;
-
-    my $br = QohA::Git::get_current_branch();
-
-    QohA::Git::delete_branch('qa1');
-    QohA::Git::create_and_change_branch('qa1');
-    QohA::Git::reset_hard($cnt);
-
-    my @err1 = valid_templates( \@files );
-
-    QohA::Git::change_branch($br);
-
-    my @err2 = valid_templates( \@files );
-
-    my $lc;
-
-    return QohA::Errors::compare_errors( \@err1, \@err2 );
+    return \@errs;
 }
 
 sub valid_templates {
     my ($files) = @_;
+## ## 'valid_templates2 ---------------------------------''
+## ## $files
     my @errors;
     foreach my $f (@$files) {
+## ## $f
+
         my $template_dir;
         my $include_dir;
 
@@ -109,12 +171,27 @@ sub valid_templates {
         my $vars;
         my $output;
         my $absf = File::Spec->rel2abs($f);
+
+## ## $absf
         my $ok = $tt->process( $absf, $vars, \$output );
+## ## $ok
         unless ($ok) {
-            push @errors, $f;
+            my $z = $tt->error();
+
+            #print "error type: ", $z->type(), "\n";
+            #print "error info: ", $z->info(), "\n";
+
+            #            push @errors, $f;
+            push @errors, $z->info() . "\n";
+            #### $z
         }
+## ## $output;
+## ## @errors
+
     }
-    return @errors;
+    #### 'xxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+
+    return \@errors;
 }
 
 1;

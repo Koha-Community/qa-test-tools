@@ -4,14 +4,20 @@ use Modern::Perl;
 
 use List::Compare;
 
+#use Smart::Comments;
+use Data::Dumper;
+
 sub compare_errors {
     my ( $err1, $err2 ) = @_;
+
     my $lc = List::Compare->new( '-u', $err2, $err1 );
 
     my @already_fails = $lc->get_intersection;
 
     my @new_fails = $lc->get_unique;
-    return ( \@new_fails, \@already_fails );
+
+    #    return ( \@new_fails, \@already_fails );
+    return ( \@new_fails );
 }
 
 sub display {
@@ -27,13 +33,20 @@ sub display {
 
 sub display_with_files {
     my ($fails) = @_;
-    my $s;
+    my ( $s, $full );
     if ( $fails and @$fails ) {
-        $s = " FAIL\n";
-        $s .= "\t$_ FAIL\n" for @$fails;
+        $s = " FAIL";
+
+        #$s .= "\t$_ FAIL\n" for @$fails;
+
+        if ( $main::v and @$fails ) {
+            $full .= "\t$_" for @$fails;
+        }
+
     }
     else { $s = " OK" }
-    return $s;
+
+    return ( $s, $full );
 }
 
 1;

@@ -10,6 +10,29 @@ use QohA::Git;
 use QohA::Errors;
 
 sub run_perl_critic {
+    my ($num_of_commits) = @_;
+
+    my @files = QohA::FileFind::get_perl_files($num_of_commits);
+    return unless @files;
+
+    QohA::Git::delete_branch('qa-current-commit');
+    QohA::Git::create_and_change_branch('qa-current-commit');
+
+    #my $f = get_history_file();
+    my ( $ko1, $ok1 ) = run_critic( 'tmp', @files );
+
+    QohA::Git::delete_branch('qa-prev-commit');
+    QohA::Git::create_and_change_branch('qa-prev-commit');
+    QohA::Git::reset_hard_prev($num_of_commits);
+
+    QohA::Git::change_branch($main::br);
+
+    my ( $ko2, $ok2 ) = run_critic( 'master', @files );
+    return QohA::Errors::compare_errors( $ko1, $ko2 );
+
+}
+
+sub run_perl_critic2 {
     my ($cnt) = @_;
 
     my @files = QohA::FileFind::get_perl_files($cnt);
@@ -65,8 +88,9 @@ sub run_critic {
         for my $line (@$full_buf) {
             chomp $line;
 
-            die "The module Test::Perl::Critic::Progressive is not installed. Please install it !"
-                if $line =~ m{Can't locate Test/Perl/Critic/Progressive};
+            die
+"The module Test::Perl::Critic::Progressive is not installed. Please install it !"
+              if $line =~ m{Can't locate Test/Perl/Critic/Progressive};
 
             $line =~ s/Expected no more than.*$//g;
             push @errors, $line if $line =~ qr/violation/;
@@ -87,60 +111,6 @@ sub run_critic {
         }
     }
     return ( \@ko, \@ok );
-}
-
-sub run_check_compil {
-    my ($cnt) = @_;
-    my $br = QohA::Git::get_current_branch;
-
-    QohA::Git::delete_branch('qa1');
-    QohA::Git::create_and_change_branch('qa1');
-    QohA::Git::reset_hard($cnt);
-
-    my @files = QohA::FileFind::get_perl_files($cnt);
-    my @err1  = compil(@files);
-
-    QohA::Git::change_branch($br);
-
-    @files = QohA::FileFind::get_perl_files($cnt);
-    my @err2 = compil(@files);
-
-    my ( $fails, $already_fails ) =
-      QohA::Errors::compare_errors( \@err1, \@err2 );
-
-    my @fail3;
-
-    for my $fail (@$fails) {
-        if ( $fail !~ /OK/ ) {
-            my $full = $fail;
-            if ( $fail =~ m/compilation aborted at (.*) line/ ) {
-                $fail = $1 . " FAIL\n";
-            } else {
-                # If the file does not exist anymore
-                $fail .= " FAIL\n";
-            }
-
-            $fail .= "\t$full\n" if 0;
-
-            push @fail3, $fail;
-        }
-    }
-
-    return \@fail3;
-}
-
-sub compil {
-    my (@files) = @_;
-    my @err;
-    foreach my $f (@files) {
-
-        # FIXME Why don't run with -wc ?
-        my @rs = qx |perl -c $f 2>&1  |;
-        my $rs = qx |perl -c $f 2>&1  |;
-        push @err, $rs;
-    }
-
-    return @err;
 }
 
 1;
