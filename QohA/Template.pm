@@ -26,8 +26,6 @@ BEGIN {
 
 sub init_tests {
 
-#### @_
-
     my ( $commits, $test_name, $file_type ) = @_;
     my @files = QohA::FileFind::get_files( $commits, $file_type );
     return ( 'OK', undef ) unless @files;
@@ -43,24 +41,17 @@ sub init_tests {
     my $existing_errs = run_test( $test_name, \@files );
 
     QohA::Git::change_branch($main::br);
-    #### '333333333333333333333333333333333'
-    #### $new_errs
     $new_errs = QohA::Errors::compare_errors( $existing_errs, $new_errs );
-    #### $new_errs
     my ( $rc, $full ) = QohA::Errors::display_with_files($new_errs);
-#### $rc
-#### $full
 
     return ( $rc, $full );
 
 }
 
 sub run_test {
-#### 'run_test ---------------------------------'
     my $test_name = shift;
     my $files     = shift;
 
-#### $files
 
     my $errs;
 
@@ -142,11 +133,8 @@ sub tt_valid {
 
 sub valid_templates {
     my ($files) = @_;
-## ## 'valid_templates2 ---------------------------------''
-## ## $files
     my @errors;
     foreach my $f (@$files) {
-## ## $f
 
         my $template_dir;
         my $include_dir;
@@ -172,24 +160,15 @@ sub valid_templates {
         my $output;
         my $absf = File::Spec->rel2abs($f);
 
-## ## $absf
         my $ok = $tt->process( $absf, $vars, \$output );
-## ## $ok
         unless ($ok) {
             my $z = $tt->error();
 
-            #print "error type: ", $z->type(), "\n";
-            #print "error info: ", $z->info(), "\n";
-
-            #            push @errors, $f;
             push @errors, $z->info() . "\n";
             #### $z
         }
-## ## $output;
-## ## @errors
 
     }
-    #### 'xxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 
     return \@errors;
 }

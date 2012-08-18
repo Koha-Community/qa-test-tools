@@ -8,14 +8,10 @@ use QohA::Git;
 
 #use Smart::Comments '####';
 
-# ssssssss
-
 sub get_files {
     my $commits   = shift;
     my $file_type = shift;
 
-    #### $commits
-#### $file_type
     my @files;
     if ( $file_type eq 'xml' ) {
         @files = QohA::FileFind::get_xml_files($commits);
@@ -36,7 +32,7 @@ sub get_files {
 }
 
 sub get_xml_files {
-    my ($cnt) = @_;
+    my ($cnt) = shift;
 
     my @files = QohA::Git::log($cnt);
 
@@ -54,7 +50,7 @@ sub get_xml_files {
 }
 
 sub get_perl_files {
-    my ($cnt) = @_;
+    my ($cnt) = shift;
 
     my @files = QohA::Git::log($cnt);
 
@@ -72,7 +68,7 @@ sub get_perl_files {
 }
 
 sub get_tt_files {
-    my ($cnt) = @_;
+    my ($cnt) = shift;
 
     my @files = QohA::Git::log($cnt);
 

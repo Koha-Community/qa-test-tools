@@ -16,11 +16,12 @@ use Data::Dumper;
 
 use vars qw /$v $br $num_of_commits/;
 
-use Smart::Comments '####';
+#use Smart::Comments '####';
 
 BEGIN {
 
     our $v = 0;
+    our $num_of_commits  = 1;
 
     eval "require Test::Perl::Critic::Progressive";
     die
@@ -28,7 +29,7 @@ BEGIN {
       if $@;
 }
 
-my $c = 1;
+my $num_of_commits  = 1;
 
 #print  $fux::v ;
 
