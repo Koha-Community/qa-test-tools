@@ -28,11 +28,15 @@ sub init_tests {
 
     my ( $commits, $test_name, $file_type ) = @_;
     my @files = QohA::FileFind::get_files( $commits, $file_type );
+
+    #if no files have changed, then no need to do any tests!
     return ( 'OK', undef ) unless @files;
 
     QohA::Git::delete_branch('qa-current-commit');
     QohA::Git::create_and_change_branch('qa-current-commit');
     my $new_errs = run_test( $test_name, \@files );
+
+    #if no new errors, then no need to run any comparison tests against the previous commits
     return ( 'OK', undef ) unless $new_errs;
 
     QohA::Git::delete_branch('qa-prev-commit');

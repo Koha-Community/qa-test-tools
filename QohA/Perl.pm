@@ -9,10 +9,12 @@ use IPC::Cmd qw[can_run run];
 use QohA::Git;
 use QohA::Errors;
 
+#use Smart::Comments ;
+
 sub run_perl_critic {
     my ($num_of_commits) = @_;
 
-    my @files = QohA::FileFind::get_perl_files($num_of_commits);
+    my @files = QohA::FileFind::get_files($num_of_commits, 'perl');
     return unless @files;
 
     QohA::Git::delete_branch('qa-current-commit');
@@ -32,25 +34,6 @@ sub run_perl_critic {
 
 }
 
-sub run_perl_critic2 {
-    my ($cnt) = @_;
-
-    my @files = QohA::FileFind::get_perl_files($cnt);
-    return unless @files;
-
-    my $br = QohA::Git::get_current_branch;
-
-    QohA::Git::delete_branch('qa1');
-    QohA::Git::create_and_change_branch('qa1');
-    QohA::Git::reset_hard($cnt);
-
-    my $f = get_history_file();
-    my ( $ko1, $ok1 ) = run_critic( 'tmp', @files );
-
-    QohA::Git::change_branch($br);
-    my ( $ko2, $ok2 ) = run_critic( 'master', @files );
-    return QohA::Errors::compare_errors( $ko1, $ko2 );
-}
 
 sub run_critic {
     my $branch = shift;
@@ -112,6 +95,30 @@ sub run_critic {
     }
     return ( \@ko, \@ok );
 }
+
+=c
+sub run_perl_critic2 {
+    my ($cnt) = @_;
+
+    my @files = QohA::FileFind::get_perl_files($cnt);
+    return unless @files;
+
+    my $br = QohA::Git::get_current_branch;
+
+    QohA::Git::delete_branch('qa1');
+    QohA::Git::create_and_change_branch('qa1');
+    QohA::Git::reset_hard($cnt);
+
+    my $f = get_history_file();
+    my ( $ko1, $ok1 ) = run_critic( 'tmp', @files );
+
+    QohA::Git::change_branch($br);
+    my ( $ko2, $ok2 ) = run_critic( 'master', @files );
+    return QohA::Errors::compare_errors( $ko1, $ko2 );
+}
+=cut
+
+
 
 1;
 

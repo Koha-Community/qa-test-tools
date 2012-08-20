@@ -1,15 +1,41 @@
 package QohA::Git;
 
 use Modern::Perl;
+#use Smart::Comments;
 
+# this sub returns all modified files, for testing on
+# and ignores deleted or moved files
 sub log {
     my ($cnt) = @_;
-    return qx|git log --oneline --numstat --name-only -$cnt|;
+
+    my @r = qx/git log --oneline --numstat  -$cnt/;
+    my @r1;
+
+#### 'aaaaaaa'
+
+    # oops, lets strip out deleted or moved files, from selection
+    foreach ( @r ) {
+
+        my @cols = split '\t' ;
+
+        # ignore lines that are commit shas, not filename
+        # ## @cols
+        next  if not defined $cols[2];
+
+        # ignore lines that are moved or deleted
+        next  if $cols[0] =~ /^0|^-/;
+        push @r1, $cols[2];
+    }
+# ## @r1
+
+return \@r1 ;
 }
 
 sub log_as_string {
     my ($cnt) = @_;
-    my @logs = QohA::Git::log($cnt);
+    #my @logs = QohA::Git::log($cnt);
+    my @logs = qx/git log --oneline --numstat  -$cnt/;
+
 
     my $cc = get_prev_commit();
 
@@ -19,15 +45,34 @@ sub log_as_string {
     my $i = 0;
     foreach my $l (@logs) {
         chomp $l;
-        if ( $l =~ /^\w{7} / ) {
 
-            $r .= "testing $cnt commit(s) (applied to commit $cc)" unless $i;
-            $l = substr $l, 0, 70;
-            $r .= "\n * $l";
+
+        my @a = split '\t', $l;
+        my ($sha, $diff, $filename);
+
+        if ( $a[0] =~ /^\w{7} / and not defined $a[2] ) {
+            $sha = $a[0];
+        } else {
+            $diff = $a[0];
+            $filename = $a[2];
+        }
+
+        # if its a commit lines
+        if ($sha) {
+
+            $r .= "testing $cnt commit(s) (applied to commit $cc)" if $i == 0;
+
+            $l = substr $a[0], 0, 70;
+            $r .= "\n * $a[0]";
 
         }
         else {
-            $r .= "      $l";
+
+            #next if lines is deleted or removed
+            next if $diff =~ /^0|^\-/;
+            $r .= "      $filename";
+
+
         }
         $r .= "\n";
         $i++;

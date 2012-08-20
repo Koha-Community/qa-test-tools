@@ -29,10 +29,6 @@ BEGIN {
       if $@;
 }
 
-my $num_of_commits  = 1;
-
-#print  $fux::v ;
-
 my $r = GetOptions(
 
     'v:s' => \$v,
@@ -43,35 +39,21 @@ our $br = QohA::Git::get_current_branch;
 my ( $new_fails, $already_fails, $skip, $error_code, $full ) = 0;
 
 eval {
-    #print  "------------------------------------------";
 
     print "\n" . QohA::Git::log_as_string($num_of_commits);
 
-    #warn Dumper @$new_fails;
 
-    #    say pack("A50", "11")."22";
-
-=c
-
-
-    ( $error_code, $full ) =
-      QohA::Template::init_tests( $num_of_commits, 'perlcritic_valid', 'pl' );
-    print "- perlcritic-progressive tests... $error_code\n";
+    ( $new_fails, $already_fails ) = QohA::Perl::run_perl_critic($num_of_commits);
+    ( $error_code, $full ) = QohA::Errors::display($new_fails);
+    say pack( "A50", '- perlcritic-progressive tests...' ) . "$error_code";
     print "\t$full" if $full;
 
 
-=cut
-
     ( $error_code, $full ) =
-      QohA::Template::init_tests( $num_of_commits, 'perl_valid', 'pl' );
+      QohA::Template::init_tests( $num_of_commits, 'perl_valid', 'perl' );
     say pack( "A50", '- perl -c syntax tests...' ) . "$error_code";
     print "\t$full" if $full;
 
-=c
-    print "- perlcritic-progressive tests...";
-    ( $new_fails, $already_fails ) = QohA::Perl::run_perl_critic($c);
-    say QohA::Errors::display($new_fails);
-=cut
 
     ( $error_code, $full ) =
       QohA::Template::init_tests( $num_of_commits, 'tt_valid', 'tt' );

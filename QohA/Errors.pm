@@ -27,7 +27,7 @@ sub display {
         $s = " FAIL\n";
         $s .= "\t@$fails" if @$fails;
     }
-    else { $s = " OK" }
+    else { $s = "OK" }
     return $s;
 }
 
@@ -35,7 +35,7 @@ sub display_with_files {
     my ($fails) = @_;
     my ( $s, $full );
     if ( $fails and @$fails ) {
-        $s = " FAIL";
+        $s = "FAIL";
 
         #$s .= "\t$_ FAIL\n" for @$fails;
 
@@ -44,7 +44,7 @@ sub display_with_files {
         }
 
     }
-    else { $s = " OK" }
+    else { $s = "OK" }
 
     return ( $s, $full );
 }

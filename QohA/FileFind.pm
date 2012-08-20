@@ -6,11 +6,14 @@ use List::MoreUtils qw(uniq);
 
 use QohA::Git;
 
-#use Smart::Comments '####';
+#use Smart::Comments '###';
+#use Data::Dumper;
 
 sub get_files {
     my $commits   = shift;
     my $file_type = shift;
+
+
 
     my @files;
     if ( $file_type eq 'xml' ) {
@@ -23,12 +26,17 @@ sub get_files {
 
     }
 
-    elsif ( $file_type eq 'pl' ) {
+    elsif ( $file_type eq 'perl' ) {
         @files = QohA::FileFind::get_perl_files($commits);
 
     }
 
+### 'zzzzzzzzzzzz'
+###   @files
+
     return @files;
+
+
 }
 
 sub get_xml_files {
@@ -39,8 +47,6 @@ sub get_xml_files {
     my @new_files;
     foreach my $f (@files) {
         chomp $f;
-        next if $f =~ /^\w{7} /;
-
         next unless $f =~ qr/\.xml$|\.xsl$|\.xslt$/i;
         push @new_files, $f;
 
@@ -50,20 +56,26 @@ sub get_xml_files {
 }
 
 sub get_perl_files {
+### 'cccccccccc'
     my ($cnt) = shift;
 
-    my @files = QohA::Git::log($cnt);
+    my $files = QohA::Git::log($cnt);
+# ## $files
 
     my @new_files;
-    foreach my $f (@files) {
+    foreach my $f (@$files) {
         chomp $f;
-        next if $f =~ /^\w{7} /;
-
-        next unless $f =~ qr/\.pl$|\.pm$/i;
+        ### $f
+        next unless $f =~ /pm$/i;
         push @new_files, $f;
 
     }
+
+## # @new_files
     @new_files = uniq(@new_files);
+## # @new_files
+
+
     return @new_files;
 }
 
@@ -75,8 +87,6 @@ sub get_tt_files {
     my @new_files;
     foreach my $f (@files) {
         chomp $f;
-        next if $f =~ /^\w{7} /;
-
         next unless $f =~ qr/\.tt$|\.inc$/i;
         push @new_files, $f;
 
