@@ -66,7 +66,7 @@ sub get_perl_files {
     foreach my $f (@$files) {
         chomp $f;
         ### $f
-        next unless $f =~ /pm$/i;
+        next unless $f =~ qr/\.pl$|\.pm$/i;
         push @new_files, $f;
 
     }
