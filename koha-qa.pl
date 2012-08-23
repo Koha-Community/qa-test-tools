@@ -24,92 +24,65 @@ BEGIN {
 use Modern::Perl;
 use Test::Perl::Critic::Progressive qw / get_history_file/;
 use Getopt::Long;
-use List::MoreUtils qw(uniq);
 
-use QohA::Errors;
 use QohA::Git;
-use QohA::Template;
-use QohA::Perl;
+use QohA::Files;
 
 use Smart::Comments  -ENV, '####';
 # define 'global' vars
 use vars qw /$v $d $c $br $num_of_commits /;
 
 
-
 BEGIN {
-
     eval "require Test::Perl::Critic::Progressive";
     die
 "Test::Perl::Critic::Progressive is not installed \nrun:\ncpan install Test::Perl::Critic::Progressive\nto install it\n"
       if $@;
-
 }
 
-#warn $v;
+$c = 1 unless $c;
+$num_of_commits = $c;
 
-    $c = 1 unless $c;
-    #$v = 1 unless $v;
-
-    $num_of_commits = $c;
-
-    our $br = QohA::Git::get_current_branch;
-    my ( $new_fails, $already_fails, $skip, $error_code, $full ) = 0;
-
-my $buf;
-my $err;
+my $git = QohA::Git->new();
+our $branch = $git->branchname;
+my ( $new_fails, $already_fails, $skip, $error_code, $full ) = 0;
 
 eval {
 
-local *STDOUT;
-open(STDOUT, '>', \$buf);
-
-# local *STDERR;
-# open(STDERR, '>', \$err);
-
-
-
     print "\n" . QohA::Git::log_as_string($num_of_commits);
 
+    my $modified_files = QohA::Files->new( { files => $git->log($num_of_commits) } );
 
-    ( $new_fails, $already_fails ) = QohA::Perl::run_perl_critic($num_of_commits);
-    ( $error_code, $full ) = QohA::Errors::display($new_fails);
-    say pack( "A50", '- perlcritic-progressive tests...' ) . "$error_code";
-    print "\t$full" if $full;
+    $git->delete_branch( 'qa-prev-commit' );
+    $git->create_and_change_branch( 'qa-prev-commit' );
+    $git->reset_hard_prev( $num_of_commits );
 
+    my @perl_files = $modified_files->filter('perl');
+    my @tt_files = $modified_files->filter('tt');
+    my @xml_files = $modified_files->filter('xml');
+    for my $f ( @perl_files, @tt_files, @xml_files ) {
+        #say $f->path;
+        $f->run_checks();
+    }
 
-    ( $error_code, $full ) =
-      QohA::Template::init_tests( $num_of_commits, 'perl_valid', 'perl' );
-    say pack( "A50", '- perl -c syntax tests...' ) . "$error_code";
-    print "\t$full" if $full;
+    $git->change_branch($branch);
+    $git->delete_branch( 'qa-current-commit' );
+    $git->create_and_change_branch( 'qa-current-commit' );
+    for my $f ( @perl_files, @tt_files, @xml_files ) {
+        #say $f->path;
+        $f->run_checks($num_of_commits);
+    }
 
-
-    ( $error_code, $full ) =
-      QohA::Template::init_tests( $num_of_commits, 'tt_valid', 'tt' );
-    say pack( "A50", "- xt/tt_valid.t tests..." ) . "$error_code";
-    print "\t$full" if $full;
-
-    ( $error_code, $full ) =
-      QohA::Template::init_tests( $num_of_commits, 'valid_templates', 'tt' );
-    say pack( "A50", "- xt/author/valid-template.t tests..." ) . "$error_code";
-    print "\t$full" if $full;
-
-    ( $error_code, $full ) =
-      QohA::Template::init_tests( $num_of_commits, 'xml_valid', 'xml' );
-    say pack( "A50", "- t/00-valid-xml.t tests..." ) . "$error_code";
-    print "\t$full" if $full;
-
-    print "\n";
-
+    for my $f ( @perl_files, @tt_files, @xml_files ) {
+        say $f->report->to_string($v);
+    }
 };
-
-print $buf if $buf and $v;
 
 if ($@) {
     say "\n\nAn error occured : $@";
 }
 
-QohA::Git::change_branch($br);
+$git->change_branch($branch);
 
 =head1 AUTHOR
 Mason James <mtj at kohaaloha.com>

@@ -1,8 +1,1 @@
-- Find a good way to put the output of progressive_critic_ok into a scalar variable (without using a IPC::Cmd).
-- Reintroduce the verbose mode
-- Working on a most adapted common structure to return (and to display). List::Compare will be too light.
-- Improve the Qoha namespace
 - Add new tests :)
-
-FIXES:
-- If a file is deleted, we don't want to launch tests on it !
