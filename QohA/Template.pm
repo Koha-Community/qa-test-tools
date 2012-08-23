@@ -13,7 +13,7 @@ use QohA::FileFind;
 use QohA::Git;
 use QohA::Errors;
 
-#use Smart::Comments '####';
+use Smart::Comments  -ENV, '####';
 
 BEGIN {
     use Exporter ();
@@ -25,9 +25,16 @@ BEGIN {
 }
 
 sub init_tests {
+#### 'init_tests'
 
     my ( $commits, $test_name, $file_type ) = @_;
+
+#### $commits
+#### $test_name
+#### $file_type
+
     my @files = QohA::FileFind::get_files( $commits, $file_type );
+#### @files
 
     #if no files have changed, then no need to do any tests!
     return ( 'OK', undef ) unless @files;
@@ -36,6 +43,7 @@ sub init_tests {
     QohA::Git::create_and_change_branch('qa-current-commit');
     my $new_errs = run_test( $test_name, \@files );
 
+#### $new_errs
     #if no new errors, then no need to run any comparison tests against the previous commits
     return ( 'OK', undef ) unless $new_errs;
 
@@ -43,6 +51,7 @@ sub init_tests {
     QohA::Git::create_and_change_branch('qa-prev-commit');
     QohA::Git::reset_hard_prev($commits);
     my $existing_errs = run_test( $test_name, \@files );
+#### $existing_errs
 
     QohA::Git::change_branch($main::br);
     $new_errs = QohA::Errors::compare_errors( $existing_errs, $new_errs );
@@ -91,6 +100,7 @@ sub perl_valid {
         my $rs = qx |perl -cw $f 2>&1  |;
         push @err, $rs;
     }
+    #### @err
     return \@err;
 }
 

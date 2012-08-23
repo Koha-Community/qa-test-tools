@@ -1,10 +1,29 @@
 #!/usr/bin/perl -w
 
+BEGIN {
+    use Getopt::Long;
+    $ENV{'Smart_Comments'}  = 0;
+
+    our ($v, $d, $c);
+    our $r = GetOptions(
+
+        'v:s' => \$v,
+        'd:s' => \$d,
+        'c:s' => \$c,
+    );
+
+    $v = 1 if not defined $v or $v eq '';
+    $c = 1 if not defined $c or $c eq '';
+    $d = 0 if not defined $d or $d eq '';
+
+    $ENV{'Smart_Comments'}  = 1 if $d;
+
+}
+
+
 use Modern::Perl;
 use Test::Perl::Critic::Progressive qw / get_history_file/;
-
 use Getopt::Long;
-
 use List::MoreUtils qw(uniq);
 
 use QohA::Errors;
@@ -12,36 +31,43 @@ use QohA::Git;
 use QohA::Template;
 use QohA::Perl;
 
-use Data::Dumper;
+use Smart::Comments  -ENV, '####';
+# define 'global' vars
+use vars qw /$v $d $c $br $num_of_commits /;
 
-use vars qw /$v $br $num_of_commits/;
 
-#use Smart::Comments '####';
 
 BEGIN {
-
-    our $v = 0;
-    our $num_of_commits;
 
     eval "require Test::Perl::Critic::Progressive";
     die
 "Test::Perl::Critic::Progressive is not installed \nrun:\ncpan install Test::Perl::Critic::Progressive\nto install it\n"
       if $@;
+
 }
 
-my $r = GetOptions(
+#warn $v;
 
-    'v:s' => \$v,
-    'c:i' => \$num_of_commits,
-);
+    $c = 1 unless $c;
+    #$v = 1 unless $v;
 
+    $num_of_commits = $c;
 
-    $num_of_commits =1 if not $num_of_commits;
+    our $br = QohA::Git::get_current_branch;
+    my ( $new_fails, $already_fails, $skip, $error_code, $full ) = 0;
 
-our $br = QohA::Git::get_current_branch;
-my ( $new_fails, $already_fails, $skip, $error_code, $full ) = 0;
+my $buf;
+my $err;
 
 eval {
+
+local *STDOUT;
+open(STDOUT, '>', \$buf);
+
+# local *STDERR;
+# open(STDERR, '>', \$err);
+
+
 
     print "\n" . QohA::Git::log_as_string($num_of_commits);
 
@@ -73,9 +99,11 @@ eval {
     say pack( "A50", "- t/00-valid-xml.t tests..." ) . "$error_code";
     print "\t$full" if $full;
 
-    print "\t$full" if $full;
+    print "\n";
 
 };
+
+print $buf if $buf and $v;
 
 if ($@) {
     say "\n\nAn error occured : $@";

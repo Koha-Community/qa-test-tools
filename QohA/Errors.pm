@@ -4,7 +4,7 @@ use Modern::Perl;
 
 use List::Compare;
 
-#use Smart::Comments;
+use Smart::Comments  -ENV, '####';
 use Data::Dumper;
 
 sub compare_errors {
@@ -25,7 +25,7 @@ sub display {
     my $s;
     if ( $fails and @$fails ) {
         $s = " FAIL\n";
-        $s .= "\t@$fails" if @$fails;
+        $s .= "@$fails" if @$fails;
     }
     else { $s = "OK" }
     return $s;
@@ -39,8 +39,8 @@ sub display_with_files {
 
         #$s .= "\t$_ FAIL\n" for @$fails;
 
-        if ( $main::v and @$fails ) {
-            $full .= "\t$_" for @$fails;
+        if ( $main::v > 1 and @$fails ) {
+            $full .= "$_" for @$fails;
         }
 
     }

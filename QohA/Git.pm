@@ -1,7 +1,7 @@
 package QohA::Git;
 
 use Modern::Perl;
-#use Smart::Comments;
+use Smart::Comments  -ENV, '####';
 
 # this sub returns all modified files, for testing on
 # and ignores deleted or moved files
@@ -9,24 +9,26 @@ sub log {
     my ($cnt) = @_;
 
     my @r = qx/git log --oneline --numstat  -$cnt/;
+#### @r
     my @r1;
 
-#### 'aaaaaaa'
 
     # oops, lets strip out deleted or moved files, from selection
-    foreach ( @r ) {
+    foreach my $rr ( @r ) {
 
-        my @cols = split '\t' ;
+        my @cols = split '\t', $rr ;
 
         # ignore lines that are commit shas, not filename
-        # ## @cols
-        next  if not defined $cols[2];
 
+#### @cols
+        #next if $cols[1] =~ qr/^deleted: /;
+        next if not defined $cols[2];
         # ignore lines that are moved or deleted
-        next  if $cols[0] =~ /^0|^-/;
+#        next  if $cols[0] =~ /^-/;
+
         push @r1, $cols[2];
     }
-# ## @r1
+#### @r1
 
 return \@r1 ;
 }
@@ -48,10 +50,11 @@ sub log_as_string {
 
 
         my @a = split '\t', $l;
-        my ($sha, $diff, $filename);
-
+        my ($sha, $diff, $action, $filename);
+#### @a
         if ( $a[0] =~ /^\w{7} / and not defined $a[2] ) {
             $sha = $a[0];
+            $filename = $a[1];
         } else {
             $diff = $a[0];
             $filename = $a[2];
@@ -62,14 +65,19 @@ sub log_as_string {
 
             $r .= "testing $cnt commit(s) (applied to commit $cc)" if $i == 0;
 
+#            next if $filename =~ qr/^deleted: /;
+
             $l = substr $a[0], 0, 70;
             $r .= "\n * $a[0]";
+
+
 
         }
         else {
 
             #next if lines is deleted or removed
-            next if $diff =~ /^0|^\-/;
+#            next if $diff =~ qr/^-/;
+
             $r .= "      $filename";
 
 

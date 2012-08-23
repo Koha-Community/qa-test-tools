@@ -6,7 +6,7 @@ use List::MoreUtils qw(uniq);
 
 use QohA::Git;
 
-#use Smart::Comments '###';
+use Smart::Comments  -ENV, '####';
 #use Data::Dumper;
 
 sub get_files {
@@ -56,11 +56,10 @@ sub get_xml_files {
 }
 
 sub get_perl_files {
-### 'cccccccccc'
     my ($cnt) = shift;
 
     my $files = QohA::Git::log($cnt);
-# ## $files
+#### $files
 
     my @new_files;
     foreach my $f (@$files) {
