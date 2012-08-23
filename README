@@ -1,23 +1,36 @@
-run some qa checks on the last $x commits, in a Koha git repo
+run some QA tests on the last $x commits, in a Koha git repo
 
-cd to your koha git repo
-    $ cd koha/git
+1/ first, configure your shell vars correctly
+    $ export KOHA_CONF=/path/to/your/koha/koha-conf.xml
+    $ export PERL5LIB="${PERL5LIB}":\
+            /path/to/your/koha.git:\
+            /path/to/your/koha.git/C4/SIP
 
-apply a new patch to test
+2/ cd to your Koha git repo
+    $ cd /path/to/your/koha.git
+
+3/ apply a new patch to test
     $ git bz apply 4460
 
-then, run some Koha qa-tests on the last 2 patches...
-    $ koha-qa.pl -c 2
-    - fb11ab9 Bug 4460 - Amazon's AssociateID tag not used in links so referred revenue lost
-        koha-tmpl/intranet-tmpl/prog/en/modules/catalogue/detail.tt
-        koha-tmpl/opac-tmpl/prog/en/modules/opac-readingrecord.tt
-        C4/Auth.pm
-        koha-tmpl/intranet-tmpl/prog/en/modules/catalogue/detail.tt
-        koha-tmpl/opac-tmpl/prog/en/modules/opac-detail.tt
-        koha-tmpl/opac-tmpl/prog/en/modules/opac-readingrecord.tt
-        koha-tmpl/opac-tmpl/prog/en/modules/opac-user.tt
-    - perlcritic-progressive tests... OK
-    - perl -c syntax tests... OK
-    - xt/tt_valid.t tests... OK
-    - xt/author/vaild-template.t tests... FAIL
-        koha-tmpl/opac-tmpl/prog/en/modules/opac-user.tt FAIL
+4/ run a qa-test on your Koha git repo, for the last commit
+    $ /path/to/your/koha-qa.pl
+
+    testing 1 commit(s) (applied to commit 8561d96)
+     * 969345c test patch to fail 'perl -cw'
+          mainpage.pl
+
+    - perlcritic-progressive tests...                 OK
+    - perl -c syntax tests...                         FAIL
+    - xt/tt_valid.t tests...                          OK
+    - xt/author/valid-template.t tests...             OK
+    - t/00-valid-xml.t tests...                       OK
+
+
+
+use -c to test the last $NUM of commits
+    $ koha-qa.pl -c 5
+
+use -v to change verbosity (default is '1')
+    $ koha-qa.pl  -v 0
+    $ koha-qa.pl  -v 2
+

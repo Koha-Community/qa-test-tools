@@ -21,7 +21,7 @@ use vars qw /$v $br $num_of_commits/;
 BEGIN {
 
     our $v = 0;
-    our $num_of_commits  = 1;
+    our $num_of_commits;
 
     eval "require Test::Perl::Critic::Progressive";
     die
@@ -34,6 +34,9 @@ my $r = GetOptions(
     'v:s' => \$v,
     'c:i' => \$num_of_commits,
 );
+
+
+    $num_of_commits =1 if not $num_of_commits;
 
 our $br = QohA::Git::get_current_branch;
 my ( $new_fails, $already_fails, $skip, $error_code, $full ) = 0;
