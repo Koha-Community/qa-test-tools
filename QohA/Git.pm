@@ -8,24 +8,15 @@ use Smart::Comments  -ENV, '####';
 sub log {
     my ($cnt) = @_;
 
-    my @r = qx/git log --oneline --numstat  -$cnt/;
-#### @r
+    #skip deleted files..
+    my @r = qx/git log --oneline --numstat  --diff-filter='ACMRTUXB'  -$cnt/;
     my @r1;
-
 
     # oops, lets strip out deleted or moved files, from selection
     foreach my $rr ( @r ) {
-
         my @cols = split '\t', $rr ;
-
         # ignore lines that are commit shas, not filename
-
-#### @cols
-        #next if $cols[1] =~ qr/^deleted: /;
         next if not defined $cols[2];
-        # ignore lines that are moved or deleted
-#        next  if $cols[0] =~ /^-/;
-
         push @r1, $cols[2];
     }
 #### @r1
@@ -36,8 +27,9 @@ return \@r1 ;
 sub log_as_string {
     my ($cnt) = @_;
     #my @logs = QohA::Git::log($cnt);
-    my @logs = qx/git log --oneline --numstat  -$cnt/;
+    my @logs = qx/git log --oneline --numstat   -$cnt/;
 
+#### @logs
 
     my $cc = get_prev_commit();
 
@@ -75,11 +67,7 @@ sub log_as_string {
         }
         else {
 
-            #next if lines is deleted or removed
-#            next if $diff =~ qr/^-/;
-
             $r .= "      $filename";
-
 
         }
         $r .= "\n";
