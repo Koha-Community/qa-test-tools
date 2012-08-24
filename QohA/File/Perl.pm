@@ -118,8 +118,10 @@ sub check_critic {
 
 sub check_valid {
     my ($self) = @_;
+    return 1 unless -f $self->path;
     my $cmd = qq|perl -cw | . $self->path . qq| 2>&1|;
     my $rs = qx|$cmd|;
+    return 1 if $rs =~ /syntax OK/;
     chomp $rs;
     $rs =~ s/\nBEGIN.*//;
     my @errors = split '\n', $rs;
