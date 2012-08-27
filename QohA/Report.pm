@@ -27,16 +27,16 @@ sub add {
     my $name = $param->{name};
     my $error = $param->{error};
     if ( ref $self->tasks->{$name} ) {
-        if ( $error ) {
+        if ( defined $error ) {
             push @{ $self->tasks->{$name} }, $error;
         } else {
-            push @{ $self->tasks->{$name} }, $STATUS_OK;
+            push @{ $self->tasks->{$name} }, 1;
         }
     } else {
-        if ( $error ) {
+        if ( defined $error ) {
             push @{ $self->tasks->{$name} }, $error;
         } else {
-            push @{ $self->tasks->{$name} }, $STATUS_OK;
+            push @{ $self->tasks->{$name} }, 1;
         }
     }
 }

@@ -5,6 +5,7 @@ use Moo;
 extends 'QohA::File';
 
 use Test::Perl::Critic::Progressive(':all');
+use Perl::Critic qw[critique];
 use IPC::Cmd qw[can_run run];
 
 use QohA::Git;
@@ -12,7 +13,7 @@ use QohA::Report;
 
 has 'pass' => (
     is => 'rw',
-    default => sub{1},
+    default => sub{0},
 );
 
 has 'report' => (
@@ -24,7 +25,10 @@ has 'report' => (
 
 sub run_checks {
     my ($self, $cnt) = @_;
+
     my $r;
+    $self->pass($self->pass + 1);
+
     if ( $self->pass == 1 ) {
         $r = $self->check_critic( 'tmp' );
     } else {
@@ -34,7 +38,7 @@ sub run_checks {
         {
             file => $self,
             name => 'critic',
-            error => ( $r ? $r : '' ),
+            error => ( defined $r ? $r : '' ),
         }
     );
 
@@ -43,7 +47,7 @@ sub run_checks {
         {
             file => $self,
             name => 'valid',
-            error => ( $r ? $r : '' ),
+            error => ( defined $r ? $r : '' ),
         }
     );
 
@@ -61,12 +65,10 @@ sub run_checks {
             {
                 file => $self,
                 name => 'forbidden patterns',
-                error => ( $r ? $r : '' ),
+                error => ( defined $r ? $r : '' ),
             }
         );
     }
-
-    $self->pass($self->pass + 1);
 
 }
 
@@ -74,10 +76,21 @@ sub check_critic {
     my ($self, $branch) = @_;
     my ( @ok, @ko );
 
-    my $f = $self->filename;
+    return 0 unless -e $self->path;
 
-    my $conf = "$f.pc";
-    $conf =~ s/\//\-/g;
+    # If first pass returns 0 then the file did not exist
+    # And we have to pass Perl::Critic instead of Test::Perl::Critic::Progressive
+    if ( $self->report->tasks->{critic}
+            and $self->report->tasks->{critic}[0] == 0 ) {
+        my $critic = Perl::Critic->new();
+        my @violations = map {
+            my $v = $_; chomp $v; "$v";
+        } $critic->critique($self->path);
+        return \@violations;
+    }
+
+    my $conf = $self->path . ".pc";
+    $conf =~ s|/|-|g;
     $conf = "/tmp/$conf";
 
     if ( $branch eq 'tmp' ) {
@@ -91,8 +104,7 @@ sub check_critic {
     my $cmd = qq{
         perl -e "use Test::Perl::Critic::Progressive(':all');
         set_history_file('$conf');
-        progressive_critic_ok('$f')"
-    };
+        progressive_critic_ok('} . $self->path . qq{')"};
 
     my ( $success, $error_code, $full_buf, $stdout_buf, $stderr_buf ) =
       run( command => $cmd, verbose => 0 );
@@ -118,7 +130,7 @@ sub check_critic {
 
 sub check_valid {
     my ($self) = @_;
-    return 1 unless -f $self->path;
+    return 1 unless -e $self->path;
     my $cmd = qq|perl -cw | . $self->path . qq| 2>&1|;
     my $rs = qx|$cmd|;
     return 1 if $rs =~ /syntax OK/;
