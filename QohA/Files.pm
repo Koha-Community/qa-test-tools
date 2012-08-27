@@ -18,11 +18,11 @@ sub BUILD {
     @files = uniq @files;
     $self->files([]);
     for my $file ( @files ) {
-        push $self->files, QohA::File::XML->new(path => $file)
+        push @{ $self->files }, QohA::File::XML->new(path => $file)
             if $file =~ qr/\.xml$|\.xsl$|\.xslt$/i;
-        push $self->files, QohA::File::Perl->new(path => $file)
+        push @{ $self->files }, QohA::File::Perl->new(path => $file)
             if $file =~ qr/\.pl$|\.pm$/i;
-        push $self->files, QohA::File::Template->new(path => $file)
+        push @{ $self->files }, QohA::File::Template->new(path => $file)
             if $file =~ qr/\.tt$|\.inc$/i;
     }
 }
