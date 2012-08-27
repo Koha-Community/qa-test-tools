@@ -33,13 +33,25 @@ sub _build_abspath {
 
 1;
 
-=head1 AUTHOR
+__END__
+
+=pod
+
+=head1 NAME
+
+QohA::File - common interface for a file in QohA
+
+=head1 DESCRIPTION
+
+This module is a wrapper that provide some common informations for a file.
+
+=head1 AUTHORS
 Mason James <mtj at kohaaloha.com>
 Jonathan Druart <jonathan.druart@biblibre.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2012 by KohaAloha
+This software is Copyright (c) 2012 by KohaAloha and BibLibre
 
 This is free software, licensed under:
 

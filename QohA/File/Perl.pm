@@ -23,17 +23,15 @@ has 'report' => (
     },
 );
 
+
 sub run_checks {
     my ($self, $cnt) = @_;
 
     my $r;
     $self->pass($self->pass + 1);
 
-    if ( $self->pass == 1 ) {
-        $r = $self->check_critic( 'tmp' );
-    } else {
-        $r = $self->check_critic( 'master' );
-    }
+    # Check perl critic
+    $r = $self->check_critic();
     $self->report->add(
         {
             file => $self,
@@ -42,6 +40,7 @@ sub run_checks {
         }
     );
 
+    # Check perl -cw
     $r = $self->check_valid();
     $self->report->add(
         {
@@ -51,31 +50,22 @@ sub run_checks {
         }
     );
 
-    if ( $self->pass == 1 ) {
-        $self->report->add(
-            {
-                file => $self,
-                name => 'forbidden patterns',
-                error => ''
-            }
-        );
-    } else {
-        $r = $self->check_forbidden_patterns($cnt);
-        $self->report->add(
-            {
-                file => $self,
-                name => 'forbidden patterns',
-                error => ( defined $r ? $r : '' ),
-            }
-        );
-    }
-
+    # Check patterns
+    $r = $self->check_forbidden_patterns($cnt);
+    $self->report->add(
+        {
+            file => $self,
+            name => 'forbidden patterns',
+            error => ( defined $r ? $r : '' ),
+        }
+    );
 }
 
 sub check_critic {
-    my ($self, $branch) = @_;
+    my ($self) = @_;
     my ( @ok, @ko );
 
+    # If the file does not exist anymore, we return 0
     return 0 unless -e $self->path;
 
     # If first pass returns 0 then the file did not exist
@@ -83,24 +73,27 @@ sub check_critic {
     if ( $self->report->tasks->{critic}
             and $self->report->tasks->{critic}[0] == 0 ) {
         my $critic = Perl::Critic->new();
+        # Serialize the violations to strings
         my @violations = map {
             my $v = $_; chomp $v; "$v";
         } $critic->critique($self->path);
         return \@violations;
     }
 
+    # Generate a perl critic progressive file in /tmp
     my $conf = $self->path . ".pc";
     $conf =~ s|/|-|g;
     $conf = "/tmp/$conf";
 
-    if ( $branch eq 'tmp' ) {
+    # If it is the first pass, we have to remove the old configuration file
+    if ( $self->pass == 1 ) {
         qx|rm $conf | if ( -e $conf ) ;
         qx|cp $conf $conf.1 | if ( -e $conf ) ;
     } else {
         qx|cp $conf $conf.2 | if ( -e $conf ) ;
     }
 
-
+    # Check with Test::Perl::Critic::Progressive
     my $cmd = qq{
         perl -e "use Test::Perl::Critic::Progressive(':all');
         set_history_file('$conf');
@@ -109,9 +102,13 @@ sub check_critic {
     my ( $success, $error_code, $full_buf, $stdout_buf, $stderr_buf ) =
       run( command => $cmd, verbose => 0 );
 
-    return 1 if $branch eq 'tmp';
+    # If it is the first pass, we stop here
+    return 1 if $self->pass == 1;
+
+    # And if it is a success (ie. no regression)
     return 1 if $success;
 
+    # Encapsulate the potential errors
     my @errors;
     for my $line (@$full_buf) {
         chomp $line;
@@ -128,13 +125,17 @@ sub check_critic {
         : 1;
 }
 
+
 sub check_valid {
     my ($self) = @_;
     return 1 unless -e $self->path;
+    # Simple check with perl -cw
     my $cmd = qq|perl -cw | . $self->path . qq| 2>&1|;
     my $rs = qx|$cmd|;
+    # File is ok if the returned string contains "syntax OK"
     return 1 if $rs =~ /syntax OK/;
     chomp $rs;
+    # Remove useless information
     $rs =~ s/\nBEGIN.*//;
     my @errors = split '\n', $rs;
     return \@errors;
@@ -142,14 +143,18 @@ sub check_valid {
 
 sub check_forbidden_patterns {
     my ($self, $cnt) = @_;
+
+    # For the first pass, I don't want to launch any test.
+    return 1 if $self->pass == 1;
+
     my $git = QohA::Git->new();
     my $diff_log = $git->diff_log($cnt, $self->path);
     my @forbidden_patterns = (
         qq{warn Data::Dumper::Dumper},
-        qq{^<<<<<<<},
+        qq{^<<<<<<<}, # git merge non terminated
         qq{^>>>>>>>},
         qq{^=======},
-        qq{IFNULL},
+        qq{IFNULL},   # COALESCE is preferable
     );
     my @errors;
     for my $line ( @$diff_log ) {
@@ -159,10 +164,26 @@ sub check_forbidden_patterns {
                 if $line =~ m/$fp/;
         }
     }
-    return \@errors;
+
+    return @errors
+        ? \@errors
+        : 1;
 }
 
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+QohA::File::Perl - Representation of a Perl file in QohA
+
+=head1 DESCRIPTION
+
+This module allow to launch several tests on a Perl file.
+Tests are: perlcritic, perl -cw and if it does not contain a line with a forbidden pattern.
 
 =head1 AUTHOR
 Mason James <mtj at kohaaloha.com>
@@ -170,7 +191,7 @@ Jonathan Druart <jonathan.druart@biblibre.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2012 by KohaAloha
+This software is Copyright (c) 2012 by KohaAloha and BibLibre
 
 This is free software, licensed under:
 
