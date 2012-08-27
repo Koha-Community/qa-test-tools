@@ -15,30 +15,22 @@ has 'tasks' => (
     default => sub {return {}},
 );
 
+# Global vars
 my $RED = "\e[1;31m";
 my $GREEN = "\e[1;32m";
 my $END = "\e[0m";
 our $STATUS_KO = "${RED}FAIL${END}";
 our $STATUS_OK = "${GREEN}OK${END}";
+
 sub add {
     my ($self, $param) = @_;
     my $file = $param->{file};
     $self->file($file);
     my $name = $param->{name};
     my $error = $param->{error};
-    if ( ref $self->tasks->{$name} ) {
-        if ( defined $error ) {
-            push @{ $self->tasks->{$name} }, $error;
-        } else {
-            push @{ $self->tasks->{$name} }, 1;
-        }
-    } else {
-        if ( defined $error ) {
-            push @{ $self->tasks->{$name} }, $error;
-        } else {
-            push @{ $self->tasks->{$name} }, 1;
-        }
-    }
+
+    push @{ $self->tasks->{$name} },
+        defined $error ? $error : 1;
 }
 
 sub to_string {
@@ -98,7 +90,7 @@ Jonathan Druart <jonathan.druart@biblibre.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2012 by KohaAloha
+This software is Copyright (c) 2012 by KohaAloha and BibLibre
 
 This is free software, licensed under:
 
