@@ -7,6 +7,7 @@ use List::MoreUtils qw(uniq);
 use QohA::File::XML;
 use QohA::File::Perl;
 use QohA::File::Template;
+use QohA::File::YAML;
 
 has 'files' => (
     is => 'rw',
@@ -24,6 +25,8 @@ sub BUILD {
             if $file =~ qr/\.pl$|\.pm$/i;
         push @{ $self->files }, QohA::File::Template->new(path => $file)
             if $file =~ qr/\.tt$|\.inc$/i;
+        push @{ $self->files }, QohA::File::YAML->new(path => $file)
+            if $file =~ qr/\.yml$|\.yaml$/i;
     }
 }
 
@@ -43,6 +46,10 @@ sub filter {
             when (/tt/) {
                 push @wanted_files, $f
                     if ref $f eq 'QohA::File::Template';
+            }
+            when (/yaml/) {
+                push @wanted_files, $f
+                    if ref $f eq 'QohA::File::YAML';
             }
         }
     }

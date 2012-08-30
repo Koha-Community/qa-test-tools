@@ -8,7 +8,7 @@ use QohA::Git;
 use QohA::Files;
 
 
-my $num_of_commits = 1;
+my $num_of_commits = 2;
 my $v = 1;
 my $git_repo = 't/git_repo_tmp';
 my $cwd_bak = $CWD;
@@ -46,14 +46,15 @@ eval {
     my @perl_files = $modified_files->filter('perl');
     my @tt_files = $modified_files->filter('tt');
     my @xml_files = $modified_files->filter('xml');
-    for my $f ( @perl_files, @tt_files, @xml_files ) {
+    my @yaml_files = $modified_files->filter('yaml');
+    for my $f ( @perl_files, @tt_files, @xml_files, @yaml_files ) {
         $f->run_checks();
     }
 
     $qoha_git->change_branch('master');
     $qoha_git->delete_branch( 'qa-current-commit_t' );
     $qoha_git->create_and_change_branch( 'qa-current-commit_t' );
-    for my $f ( @perl_files, @tt_files, @xml_files ) {
+    for my $f ( @perl_files, @tt_files, @xml_files, @yaml_files ) {
         $f->run_checks($num_of_commits);
     }
 
@@ -88,6 +89,7 @@ eval {
 * perl/i_fail_compil.pl                                                    $STATUS_KO
 * perl/i_fail_critic.pl                                                    $STATUS_KO
 * perl/i_m_ok.pl                                                           $STATUS_OK
+* i_fail_yaml.yaml                                                         $STATUS_KO
 EOL
     my $r_v1_expected = <<EOL;
 * perl/i_fail_compil.pl                                                    $STATUS_KO
@@ -102,10 +104,12 @@ EOL
 	forbidden patterns          $STATUS_OK
 	valid                       $STATUS_OK
 	critic                      $STATUS_OK
+* i_fail_yaml.yaml                                                         $STATUS_KO
+	yaml_valid                  $STATUS_KO
 EOL
 
     my ( $r_v0, $r_v1 );
-    for my $f ( @perl_files, @tt_files, @xml_files ) {
+    for my $f ( @perl_files, @tt_files, @xml_files, @yaml_files ) {
         $r_v0 .= $f->report->to_string(0)."\n";
         $r_v1 .= $f->report->to_string(1)."\n";
     }
