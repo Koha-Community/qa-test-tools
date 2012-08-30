@@ -31,25 +31,28 @@ sub BUILD {
 }
 
 sub filter {
-    my ($self, $file_type) = @_;
+    my ($self, @file_types) = @_;
     my @wanted_files;
-    for my $f ( @{$self->files} ) {
-        given ( $file_type ) {
-            when (/perl/) {
-                push @wanted_files, $f
-                    if ref $f eq 'QohA::File::Perl';
-            }
-            when (/xml/) {
-                push @wanted_files, $f
-                    if ref $f eq 'QohA::File::XML';
-            }
-            when (/tt/) {
-                push @wanted_files, $f
-                    if ref $f eq 'QohA::File::Template';
-            }
-            when (/yaml/) {
-                push @wanted_files, $f
-                    if ref $f eq 'QohA::File::YAML';
+
+    for my $type ( @file_types ) {
+        for my $f ( @{$self->files} ) {
+            given ( $type ) {
+                when (/perl/) {
+                    push @wanted_files, $f
+                        if ref $f eq 'QohA::File::Perl';
+                }
+                when (/xml/) {
+                    push @wanted_files, $f
+                        if ref $f eq 'QohA::File::XML';
+                }
+                when (/tt/) {
+                    push @wanted_files, $f
+                        if ref $f eq 'QohA::File::Template';
+                }
+                when (/yaml/) {
+                    push @wanted_files, $f
+                        if ref $f eq 'QohA::File::YAML';
+                }
             }
         }
     }

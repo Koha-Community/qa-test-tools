@@ -57,12 +57,9 @@ eval {
     $git->create_and_change_branch( 'qa-prev-commit' );
     $git->reset_hard_prev( $num_of_commits );
 
-    my @perl_files = $modified_files->filter('perl');
-    my @tt_files   = $modified_files->filter('tt');
-    my @xml_files  = $modified_files->filter('xml');
-    my @yaml_files = $modified_files->filter('yaml');
+    my @files = $modified_files->filter( qw< perl tt xml yaml > );
 
-    for my $f ( @perl_files, @tt_files, @xml_files, @yaml_files ) {
+    for my $f ( @files ) {
         #say $f->path;
         $f->run_checks();
     }
@@ -70,12 +67,12 @@ eval {
     $git->change_branch($branch);
     $git->delete_branch( 'qa-current-commit' );
     $git->create_and_change_branch( 'qa-current-commit' );
-    for my $f ( @perl_files, @tt_files, @xml_files, @yaml_files ) {
+    for my $f ( @files ) {
         #say $f->path;
         $f->run_checks($num_of_commits);
     }
 
-    for my $f ( @perl_files, @tt_files, @xml_files, @yaml_files ) {
+    for my $f ( @files ) {
         say $f->report->to_string($v);
     }
 };

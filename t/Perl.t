@@ -43,29 +43,26 @@ eval {
     $qoha_git->create_and_change_branch( 'qa-prev-commit_t' );
     $qoha_git->reset_hard_prev( $num_of_commits );
 
-    my @perl_files = $modified_files->filter('perl');
-    my @tt_files = $modified_files->filter('tt');
-    my @xml_files = $modified_files->filter('xml');
-    my @yaml_files = $modified_files->filter('yaml');
-    for my $f ( @perl_files, @tt_files, @xml_files, @yaml_files ) {
+    my @files = $modified_files->filter( qw< perl tt xml yaml > );
+    for my $f ( @files ) {
         $f->run_checks();
     }
 
     $qoha_git->change_branch('master');
     $qoha_git->delete_branch( 'qa-current-commit_t' );
     $qoha_git->create_and_change_branch( 'qa-current-commit_t' );
-    for my $f ( @perl_files, @tt_files, @xml_files, @yaml_files ) {
+    for my $f ( @files ) {
         $f->run_checks($num_of_commits);
     }
 
-    my ($perl_fail_compil) = grep {$_->path eq qq{perl/i_fail_compil.pl}} @perl_files;
+    my ($perl_fail_compil) = grep {$_->path eq qq{perl/i_fail_compil.pl}} @files;
     is( ref $perl_fail_compil, qq{QohA::File::Perl}, "i_fail_compil.pl found" );
     my ($fail_compil_before, $fail_compil_after) = @{ $perl_fail_compil->report->tasks->{valid} };
     is( $fail_compil_before, 1, "fail_compil passed compil before" );
     is( scalar @$fail_compil_after, 1, "fail_compil has 1 error for compil now");
     is( @$fail_compil_after[0] =~ m{Can't locate Foo/Bar.pm}, 1, qq{the compil error for fail_compil is "can't locate Foo/Bar.pm} );
 
-    my ($perl_fail_critic) = grep {$_->path eq qq{perl/i_fail_critic.pl}} @perl_files;
+    my ($perl_fail_critic) = grep {$_->path eq qq{perl/i_fail_critic.pl}} @files;
     is( ref $perl_fail_critic, qq{QohA::File::Perl}, "i_fail_critic.pl found" );
     my ($fail_critic_before, $fail_critic_after) = @{ $perl_fail_critic->report->tasks->{valid} };
     is( $fail_critic_before, 1, "fail_critic passed valid before");
@@ -74,7 +71,7 @@ eval {
     is($fail_critic_before, 0, "fail_critic passes critic before (file did not exist)");
     is( @$fail_critic_after[0] =~ m{^Bareword file handle.*PBP.$}, 1, qq{the perl critic error for fail_compil is "'Bareword file handle opened[...]See pages 202,204 of PBP.'"} );
 
-    my ($perl_ok) = grep {$_->path eq qq{perl/i_m_ok.pl}} @perl_files;
+    my ($perl_ok) = grep {$_->path eq qq{perl/i_m_ok.pl}} @files;
     is( ref $perl_ok, qq{QohA::File::Perl}, "i_m_ok.pl found" );
 
 
@@ -109,7 +106,7 @@ EOL
 EOL
 
     my ( $r_v0, $r_v1 );
-    for my $f ( @perl_files, @tt_files, @xml_files, @yaml_files ) {
+    for my $f ( @files ) {
         $r_v0 .= $f->report->to_string(0)."\n";
         $r_v1 .= $f->report->to_string(1)."\n";
     }
