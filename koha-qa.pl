@@ -1,20 +1,23 @@
 #!/usr/bin/perl -w
 
+
+our ($v, $d, $c, $nocolor);
 BEGIN {
     use Getopt::Long;
     $ENV{'Smart_Comments'}  = 0;
 
-    our ($v, $d, $c);
     our $r = GetOptions(
 
         'v:s' => \$v,
         'd:s' => \$d,
         'c:s' => \$c,
+        'nocolor' => \$nocolor,
     );
 
     $v = 0 if not defined $v or $v eq '';
     $c = 1 if not defined $c or $c eq '';
     $d = 0 if not defined $d or $d eq '';
+    $nocolor = 0 if not defined $nocolor;
 
     $ENV{'Smart_Comments'}  = 1 if $d;
 
@@ -73,7 +76,7 @@ eval {
     }
 
     for my $f ( @files ) {
-        say $f->report->to_string($v);
+        say $f->report->to_string({ verbosity => $v, color => not $nocolor });
     }
 };
 

@@ -19,8 +19,6 @@ has 'tasks' => (
 my $RED = "\e[1;31m";
 my $GREEN = "\e[1;32m";
 my $END = "\e[0m";
-our $STATUS_KO = "${RED}FAIL${END}";
-our $STATUS_OK = "${GREEN}OK${END}";
 
 sub add {
     my ($self, $param) = @_;
@@ -34,7 +32,16 @@ sub add {
 }
 
 sub to_string {
-    my ($self, $verbosity) = @_;
+    my ($self, $params) = @_;
+    my $verbosity = $params->{verbosity} // 0;
+    my $color = $params->{color} // 1;
+    my $STATUS_KO = $color
+        ? "${RED}FAIL${END}"
+        : "FAIL";
+    my $STATUS_OK = $color
+        ? "${GREEN}OK${END}"
+        : "OK";
+
     my $tasks = $self->tasks;
     my ( $v1, $v2 );
     my $errors_cpt = 0;
