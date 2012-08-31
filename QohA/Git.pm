@@ -16,7 +16,7 @@ sub log {
     my ($self, $cnt) = @_;
 
     #skip deleted files..
-    my @r = qx/git log --oneline --numstat  --diff-filter='ACMRTUXB'  -$cnt/;
+    my @r = qx{git log --oneline --numstat  --diff-filter='ACMRTUXB' -$cnt};
     my @r1;
 
     # oops, lets strip out deleted or moved files, from selection
@@ -44,11 +44,11 @@ sub diff_log {
 
 sub log_as_string {
     my ($cnt) = @_;
-    my @logs = qx/git log --oneline --numstat   -$cnt/;
+    my @logs = qx{git log --oneline --numstat -$cnt};
 
 #### @logs
 
-    my $cc = get_prev_commit();
+    my $cc = get_prev_commit($cnt);
 
     my $r;
     my $i = 0;
@@ -115,9 +115,9 @@ sub get_current_branch {
 }
 
 sub get_prev_commit {
-    my $num_of_commits = $main::num_of_commits;
+    my ($cnt) = @_;
     my $cc =
-      qx/git log --abbrev-commit  --format=oneline -n 1 HEAD~$num_of_commits /;
+      qx{git log --abbrev-commit --format=oneline -n 1 HEAD~$cnt};
     $cc =~ s/ .*//;
 
     chomp $cc;

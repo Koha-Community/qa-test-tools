@@ -107,8 +107,8 @@ EOL
 
     my ( $r_v0, $r_v1 );
     for my $f ( @files ) {
-        $r_v0 .= $f->report->to_string(0)."\n";
-        $r_v1 .= $f->report->to_string(1)."\n";
+        $r_v0 .= $f->report->to_string({verbosity => 0})."\n";
+        $r_v1 .= $f->report->to_string({verbosity => 1})."\n";
     }
     is( $r_v0, $r_v0_expected, "Check verbosity output (0)");
     is( $r_v1, $r_v1_expected, "Check verbosity output (1)");

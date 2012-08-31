@@ -1,22 +1,24 @@
 #!/usr/bin/perl -w
 
 
-our ($v, $d, $c, $nocolor);
+our ($v, $d, $c, $nocolor, $help);
+
 BEGIN {
     use Getopt::Long;
+    use Pod::Usage;
     $ENV{'Smart_Comments'}  = 0;
 
     our $r = GetOptions(
-
         'v:s' => \$v,
-        'd:s' => \$d,
         'c:s' => \$c,
+        'd' => \$d,
         'nocolor' => \$nocolor,
+        'h|help' => \$help,
     );
+    pod2usage(1) if $help or not $c;
 
     $v = 0 if not defined $v or $v eq '';
     $c = 1 if not defined $c or $c eq '';
-    $d = 0 if not defined $d or $d eq '';
     $nocolor = 0 if not defined $nocolor;
 
     $ENV{'Smart_Comments'}  = 1 if $d;
@@ -31,11 +33,6 @@ use Getopt::Long;
 use QohA::Git;
 use QohA::Files;
 
-use Smart::Comments  -ENV, '####';
-# define 'global' vars
-use vars qw /$v $d $c $br $num_of_commits /;
-
-
 BEGIN {
     eval "require Test::Perl::Critic::Progressive";
     die
@@ -44,7 +41,7 @@ BEGIN {
 }
 
 $c = 1 unless $c;
-$num_of_commits = $c;
+my $num_of_commits = $c;
 
 my $git = QohA::Git->new();
 our $branch = $git->branchname;
@@ -63,7 +60,6 @@ eval {
     my @files = $modified_files->filter( qw< perl tt xml yaml > );
 
     for my $f ( @files ) {
-        #say $f->path;
         $f->run_checks();
     }
 
@@ -71,7 +67,6 @@ eval {
     $git->delete_branch( 'qa-current-commit' );
     $git->create_and_change_branch( 'qa-current-commit' );
     for my $f ( @files ) {
-        #say $f->path;
         $f->run_checks($num_of_commits);
     }
 
@@ -86,15 +81,70 @@ if ($@) {
 
 $git->change_branch($branch);
 
+exit(0);
+
+__END__
+
+=head1 NAME
+
+koha-qa.pl
+
+=head1 SYNOPSIS
+
+koha-qa.pl -c NUMBER_OF_COMMITS [-v VERBOSITY_VALUE] [-d] [--nocolor] [-h]
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-h|--help>
+
+prints this help message
+
+=item B<-v>
+
+change the verbosity of the output
+    0 = default, only display the list of files
+    1 = display for each file the list of tests
+    2 = display for each test the list of failures
+
+=item B<-c>
+
+Number of commit to test from HEAD
+
+=item B<-d>
+
+Debug mode
+
+=item B<--nocolor>
+
+do not display the status with color
+
+=back
+
 =head1 AUTHOR
+
 Mason James <mtj at kohaaloha.com>
-Jonathan Druart <jonathan.druart@biblibre.com>
+Jonathan Druart <jonathan.druart at biblibre.com>
 
-=head1 COPYRIGHT AND LICENSE
+=head1 COPYRIGHT
 
-This software is Copyright (c) 2012 by KohaAloha
+This software is Copyright (c) 2012 by KohaAloha and BibLibre
 
-This is free software, licensed under:
+=head1 LICENSE
 
-  The GNU General Public License, Version 3, June 2007
+This file is part of Koha.
+
+Koha is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later version.
+
+You should have received a copy of the GNU General Public License along
+with Koha; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+=head1 DISCLAIMER OF WARRANTY
+
+Koha is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
 =cut
