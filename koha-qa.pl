@@ -12,7 +12,7 @@ BEGIN {
         'c:s' => \$c,
     );
 
-    $v = 1 if not defined $v or $v eq '';
+    $v = 0 if not defined $v or $v eq '';
     $c = 1 if not defined $c or $c eq '';
     $d = 0 if not defined $d or $d eq '';
 
