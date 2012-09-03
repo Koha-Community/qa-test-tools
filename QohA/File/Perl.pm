@@ -65,6 +65,16 @@ sub check_critic {
     my ($self) = @_;
     my ( @ok, @ko );
 
+    # Generate a perl critic progressive file in /tmp
+    my $conf = $self->path . ".pc";
+    $conf =~ s|/|-|g;
+    $conf = "/tmp/$conf";
+
+    # If it is the first pass, we have to remove the old configuration file
+    if ( $self->pass == 1 ) {
+        qx|rm $conf| if ( -e $conf ) ;
+    }
+
     # If the file does not exist anymore, we return 0
     return 0 unless -e $self->path;
 
@@ -78,19 +88,6 @@ sub check_critic {
             my $v = $_; chomp $v; "$v";
         } $critic->critique($self->path);
         return \@violations;
-    }
-
-    # Generate a perl critic progressive file in /tmp
-    my $conf = $self->path . ".pc";
-    $conf =~ s|/|-|g;
-    $conf = "/tmp/$conf";
-
-    # If it is the first pass, we have to remove the old configuration file
-    if ( $self->pass == 1 ) {
-        qx|rm $conf | if ( -e $conf ) ;
-        qx|cp $conf $conf.1 | if ( -e $conf ) ;
-    } else {
-        qx|cp $conf $conf.2 | if ( -e $conf ) ;
     }
 
     # Check with Test::Perl::Critic::Progressive
