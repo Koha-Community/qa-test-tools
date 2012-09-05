@@ -69,6 +69,7 @@ sub run_checks {
 
 sub check_tt_valid {
     my ($self) = @_;
+    return q{} unless -e $self->path;
     my $parser = C4::TTParser->new;
     my $filename = $self->abspath;
     $parser->build_tokens( $filename );
@@ -86,6 +87,7 @@ sub check_tt_valid {
 
 sub check_valid_template {
     my ($self) = @_;
+    return q{} unless -e $self->path;
     my @errors;
 
     my $template_dir;
@@ -124,6 +126,7 @@ sub check_valid_template {
 
 sub check_forbidden_patterns {
     my ($self, $cnt) = @_;
+    return q{} unless -e $self->path;
     my $git = QohA::Git->new();
     my $diff_log = $git->diff_log($cnt, $self->path);
     my @forbidden_patterns = (
