@@ -147,19 +147,23 @@ sub check_forbidden_patterns {
     my $git = QohA::Git->new();
     my $diff_log = $git->diff_log($cnt, $self->path);
     my @forbidden_patterns = (
-        qq{warn Data::Dumper::Dumper},
-        qq{^<<<<<<<}, # git merge non terminated
-        qq{^>>>>>>>},
-        qq{^=======},
-        qq{IFNULL},   # COALESCE is preferable
+        {pattern => qq{warn Data::Dumper::Dumper}, error => "Data::Dumper::Dumper"},
+        {pattern => qq{^<<<<<<<}, error => "merge marker (<<<<<<<)"},# git merge non terminated
+        {pattern => qq{^>>>>>>>}, error => "merge marker (>>>>>>>)"},
+        {pattern => qq{^=======}, error => "merge marker (=======)"},
+        {pattern => qq{IFNULL}  , error => "IFNULL (must be replaced by COALESCE)"},  # COALESCE is preferable
+        {pattern => qq{\t},     , error => "tabulation character"},  # tab caracters
+        {pattern => qq{ \$},    , error => "widespace character "},  # tab caracters
     );
     my @errors;
+    my $line_number = 1;
     for my $line ( @$diff_log ) {
         next unless $line =~ m|^\+|;
         for my $fp ( @forbidden_patterns ) {
-            push @errors, "The patch introduces a forbidden pattern: $fp"
-                if $line =~ m/$fp/;
+            push @errors, "The patch introduces a forbidden pattern: " . $fp->{error} . " at line $line_number"
+                if $line =~ m/$fp->{pattern}/;
         }
+        $line_number++;
     }
 
     return @errors
