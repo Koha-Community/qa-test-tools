@@ -127,14 +127,16 @@ sub check_valid {
     my ($self) = @_;
     return 1 unless -e $self->path;
     # Simple check with perl -cw
-    my $cmd = qq|perl -cw | . $self->path . qq| 2>&1|;
+    my $path = $self->path;
+    my $cmd = qq|perl -cw $path 2>&1|;
     my $rs = qx|$cmd|;
-    # File is ok if the returned string contains "syntax OK"
-    return 1 if $rs =~ /syntax OK/;
+    ## File is ok if the returned string just contains "syntax OK"
+    return 1 if $rs =~ /^$path syntax OK$/;
     chomp $rs;
     # Remove useless information
     $rs =~ s/\nBEGIN.*//;
     my @errors = split '\n', $rs;
+    s/at .*$path line .*$// for @errors;
     return \@errors;
 }
 
