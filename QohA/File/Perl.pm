@@ -136,7 +136,9 @@ sub check_valid {
     # Remove useless information
     $rs =~ s/\nBEGIN.*//;
     my @errors = split '\n', $rs;
-    s/at .*$path line .*$// for @errors;
+    s/at .* line .*$// for @errors;
+    s/.*syntax OK$// for @errors;
+    @errors = grep {!/^$/} @errors;
     return \@errors;
 }
 
