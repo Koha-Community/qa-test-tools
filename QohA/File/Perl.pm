@@ -160,14 +160,12 @@ sub check_forbidden_patterns {
         {pattern => qq{ \$},    , error => "widespace character "},  # tab caracters
     );
     my @errors;
-    my $line_number = 1;
     for my $line ( @$diff_log ) {
         next unless $line =~ m|^\+|;
         for my $fp ( @forbidden_patterns ) {
-            push @errors, "The patch introduces a forbidden pattern: " . $fp->{error} . " at line $line_number"
-                if $line =~ m/$fp->{pattern}/;
+            push @errors, "The patch introduces a forbidden pattern: " . $fp->{error} . " ($line)"
+                if $line =~ m/^\+.*$fp->{pattern}/;
         }
-        $line_number++;
     }
 
     return @errors
