@@ -1,0 +1,14 @@
+<html>
+  <head></head>
+  <body>
+    <select name="foo">
+      [% FOREACH bar IN bar_loop %]
+        [% IF bar.selected %]
+          <option> bar </option>
+        [% ELSE %]
+          <option selected="selected"> bar </option>
+        [% END %]
+      [% END %]
+    </select>
+  </body>
+</html>
