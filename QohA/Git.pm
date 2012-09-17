@@ -35,7 +35,7 @@ sub log {
 
 sub diff_log {
     my ($self, $cnt, $file) = @_; # $file is optionnal
-    my $cmd = qq{git log -p HEAD~$cnt^..};
+    my $cmd = qq{git diff HEAD~$cnt..};
     $cmd .= qq{ $file} if $file;
     my @r = qx/$cmd/;
     chomp for @r;
