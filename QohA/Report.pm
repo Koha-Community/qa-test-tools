@@ -50,14 +50,19 @@ sub to_string {
         my @diff = $self->diff($results);
         $v1 .= pack( "A30", "\n\t$name");
         if ( @diff ) {
-            $errors_cpt++;
-            $v1 .= $STATUS_KO;
-            if ( $verbosity >= 2 ) {
-                for my $d ( @diff ) {
-                    $v1 .= "\n\t\t$d";
-                }
+            my @diff_ko;
+            for my $d ( @diff ) {
+                next unless $d;
+                push @diff_ko, $d;
             }
-            next;
+            if ( @diff_ko ) {
+                $errors_cpt++;
+                $v1 .= $STATUS_KO;
+                if ( $verbosity >= 2 ) {
+                    $v1 .= "\n\t\t$_" for @diff
+                }
+                next;
+            }
         }
         $v1 .= $STATUS_OK;
     }
