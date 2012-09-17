@@ -80,9 +80,9 @@ sub diff {
         }
         return ($current);
     }
-    if ( ref $current ne ref $before ) {
-        $before = [$before];
-    }
+
+    $current = [$current] unless ref $current;
+    $before  = [$before]  unless ref $before;
 
     my $lc = List::Compare->new( '-u', $current, $before );
 
