@@ -31,6 +31,36 @@ sub _build_abspath {
     return $abs_path;
 }
 
+sub check_forbidden_patterns {
+    my ($self, $cnt, $patterns) = @_;
+
+    # For the first pass, I don't want to launch any test.
+    return 1 if $self->pass == 1;
+
+    my $git = QohA::Git->new();
+    my $diff_log = $git->diff_log($cnt, $self->path);
+    my @forbidden_patterns = @$patterns;
+    my @errors;
+    my $line_number = 1;
+    for my $line ( @$diff_log ) {
+        if ( $line =~ m|^@@ -\d+,{0,1}\d* \+(\d+),\d+ @@| ) {
+            $line_number = $1;
+            next;
+        }
+        $line_number-- and next if $line =~ m|^-|;
+        $line_number++ and next unless $line =~ m|^\+|;
+        for my $fp ( @forbidden_patterns ) {
+            push @errors, "The patch introduces a forbidden pattern: " . $fp->{error} . " ($line_number)"
+                if $line =~ /^\+.*$fp->{pattern}/;
+        }
+        $line_number++;
+    }
+
+    return @errors
+        ? \@errors
+        : 1;
+}
+
 1;
 
 __END__

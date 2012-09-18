@@ -126,21 +126,14 @@ sub check_valid_template {
 
 sub check_forbidden_patterns {
     my ($self, $cnt) = @_;
-    return q{} unless -e $self->path;
-    my $git = QohA::Git->new();
-    my $diff_log = $git->diff_log($cnt, $self->path);
+
     my @forbidden_patterns = (
-        qq{console.log},
+        {pattern => qr{console.log}, error => "console.log"},
     );
-    my @errors;
-    for my $line ( @$diff_log ) {
-        next unless $line =~ m|^\+|;
-        for my $fp ( @forbidden_patterns ) {
-            push @errors, "The patch introduces a forbidden pattern: $fp"
-                if $line =~ m/$fp/;
-        }
-    }
-    return \@errors;
+
+    my $errors = $self->SUPER::check_forbidden_patterns($cnt, \@forbidden_patterns);
+    return q{} if $errors == 1;
+    return $errors;
 }
 
 1;

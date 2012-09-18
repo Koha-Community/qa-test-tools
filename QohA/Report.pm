@@ -52,7 +52,8 @@ sub to_string {
         if ( @diff ) {
             my @diff_ko;
             for my $d ( @diff ) {
-                next unless $d;
+                next unless $d;  # if $d eq "" FIXME
+                next if $d =~ /^\d$/ and $d ~~ 1; # if $d == 1  We have to bring consistency for the returns of the check* routine
                 push @diff_ko, $d;
             }
             if ( @diff_ko ) {

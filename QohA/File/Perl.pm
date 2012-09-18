@@ -145,32 +145,17 @@ sub check_valid {
 sub check_forbidden_patterns {
     my ($self, $cnt) = @_;
 
-    # For the first pass, I don't want to launch any test.
-    return 1 if $self->pass == 1;
-
-    my $git = QohA::Git->new();
-    my $diff_log = $git->diff_log($cnt, $self->path);
     my @forbidden_patterns = (
-        {pattern => qq{warn Data::Dumper::Dumper}, error => "Data::Dumper::Dumper"},
-        {pattern => qq{^<<<<<<<}, error => "merge marker (<<<<<<<)"},# git merge non terminated
-        {pattern => qq{^>>>>>>>}, error => "merge marker (>>>>>>>)"},
-        {pattern => qq{^=======}, error => "merge marker (=======)"},
-        {pattern => qq{IFNULL}  , error => "IFNULL (must be replaced by COALESCE)"},  # COALESCE is preferable
-        {pattern => qq{\t},     , error => "tabulation character"},  # tab caracters
-        {pattern => qq{ \$},    , error => "widespace character "},  # tab caracters
+        {pattern => qr{warn Data::Dumper::Dumper}, error => "Data::Dumper::Dumper"},
+        {pattern => qr{<<<<<<<}, error => "merge marker (<<<<<<<)"},# git merge non terminated
+        {pattern => qr{>>>>>>>}, error => "merge marker (>>>>>>>)"},
+        {pattern => qr{=======}, error => "merge marker (=======)"},
+        {pattern => qr{IFNULL}  , error => "IFNULL (must be replaced by COALESCE)"},  # COALESCE is preferable
+        {pattern => qr{\t},     , error => "tabulation character"},  # tab caracters
+        {pattern => qr{ $},    , error => "withespace character "},  # withespace caracters
     );
-    my @errors;
-    for my $line ( @$diff_log ) {
-        next unless $line =~ m|^\+|;
-        for my $fp ( @forbidden_patterns ) {
-            push @errors, "The patch introduces a forbidden pattern: " . $fp->{error} . " ($line)"
-                if $line =~ m/^\+.*$fp->{pattern}/;
-        }
-    }
 
-    return @errors
-        ? \@errors
-        : 1;
+    return $self->SUPER::check_forbidden_patterns($cnt, \@forbidden_patterns);
 }
 
 1;
