@@ -50,6 +50,16 @@ sub run_checks {
         }
     );
 
+    # Check pod (Pod::Checker)
+    $r = $self->check_pod();
+    $self->report->add(
+        {
+            file => $self,
+            name => 'pod',
+            error => ( defined $r ? $r : '' ),
+        }
+    );
+
     # Check patterns
     $r = $self->check_forbidden_patterns($cnt);
     $self->report->add(
@@ -156,6 +166,32 @@ sub check_forbidden_patterns {
     );
 
     return $self->SUPER::check_forbidden_patterns($cnt, \@forbidden_patterns);
+}
+
+sub check_pod {
+    my ($self) = @_;
+    return 1 unless -e $self->path;
+
+    my $cmd = q{
+        perl -e "use Pod::Checker;
+        podchecker('} . $self->path . q{', \\*STDERR);"};
+
+    my ( $success, $error_code, $full_buf, $stdout_buf, $stderr_buf ) =
+      run( command => $cmd, verbose => 0 );
+
+    # Encapsulate the potential errors
+    my @errors;
+    for my $line (@$full_buf) {
+        chomp $line;
+
+        $line =~ s/\(?at line \d+\)?//g;
+
+        push @errors, $line;
+    }
+
+    return @errors
+        ? \@errors
+        : 1;
 }
 
 1;
