@@ -61,6 +61,17 @@ sub check_forbidden_patterns {
         : 1;
 }
 
+sub add_to_report {
+    my ($self, $name, $error) = @_;
+    $self->report->add(
+        {
+            file => $self,
+            name => $name,
+            error => ( defined $error ? $error : '' ),
+        }
+    );
+}
+
 1;
 
 __END__

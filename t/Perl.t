@@ -58,15 +58,15 @@ eval {
     my ($perl_fail_compil) = grep {$_->path eq qq{perl/i_fail_compil.pl}} @files;
     is( ref $perl_fail_compil, qq{QohA::File::Perl}, "i_fail_compil.pl found" );
     my ($fail_compil_before, $fail_compil_after) = @{ $perl_fail_compil->report->tasks->{valid} };
-    is( $fail_compil_before, 1, "fail_compil passed compil before" );
+    is( $fail_compil_before, 0, "fail_compil passed compil before" );
     is( scalar @$fail_compil_after, 1, "fail_compil has 1 error for compil now");
     is( @$fail_compil_after[0] =~ m{Can't locate Foo/Bar.pm}, 1, qq{the compil error for fail_compil is "can't locate Foo/Bar.pm} );
 
     my ($perl_fail_critic) = grep {$_->path eq qq{perl/i_fail_critic.pl}} @files;
     is( ref $perl_fail_critic, qq{QohA::File::Perl}, "i_fail_critic.pl found" );
     my ($fail_critic_before, $fail_critic_after) = @{ $perl_fail_critic->report->tasks->{valid} };
-    is( $fail_critic_before, 1, "fail_critic passed valid before");
-    is( $fail_critic_after, 1, "fail_critic passes valid now");
+    is( $fail_critic_before, 0, "fail_critic passed valid before");
+    is( $fail_critic_after, 0, "fail_critic passes valid now");
     ($fail_critic_before, $fail_critic_after) = @{ $perl_fail_critic->report->tasks->{critic} };
     is($fail_critic_before, 0, "fail_critic passes critic before (file did not exist)");
     is( @$fail_critic_after[0] =~ m{^Bareword file handle.*PBP.$}, 1, qq{the perl critic error for fail_compil is "'Bareword file handle opened[...]See pages 202,204 of PBP.'"} );
@@ -94,18 +94,22 @@ eval {
 EOL
     my $r_v1_expected = <<EOL;
 * perl/i_fail_patterns.pl                                                  $STATUS_KO
+	pod                         $STATUS_OK
 	forbidden patterns          $STATUS_KO
 	valid                       $STATUS_KO
 	critic                      $STATUS_OK
 * perl/i_fail_compil.pl                                                    $STATUS_KO
+	pod                         $STATUS_OK
 	forbidden patterns          $STATUS_OK
 	valid                       $STATUS_KO
 	critic                      $STATUS_OK
 * perl/i_fail_critic.pl                                                    $STATUS_KO
+	pod                         $STATUS_OK
 	forbidden patterns          $STATUS_OK
 	valid                       $STATUS_OK
 	critic                      $STATUS_KO
 * perl/i_m_ok.pl                                                           $STATUS_OK
+	pod                         $STATUS_OK
 	forbidden patterns          $STATUS_OK
 	valid                       $STATUS_OK
 	critic                      $STATUS_OK
@@ -132,6 +136,21 @@ EOL
     }
     is( $r_v0, $r_v0_expected, "Check verbosity output (0)");
     is( $r_v1, $r_v1_expected, "Check verbosity output (1)");
+
+
+    test_report( {one => 0,                 two => [],                      name => 1,  status => q{OK}} );
+    test_report( {one => [],                two => [],                      name => 2,  status => q{OK}} );
+    test_report( {one => 0,                 two => ['foo'],                 name => 3,  status => q{FAIL}} );
+    test_report( {one => ['foo'],           two => 0,                       name => 4,  status => q{OK}} );
+    test_report( {one => ['foo'],           two => 1,                       name => 5,  status => q{OK}} );
+    test_report( {one => ['foo'],           two => q{},                     name => 6,  status => q{OK}} );
+    test_report( {one => 1,                 two => ['foo'],                 name => 7,  status => q{FAIL}} );
+    test_report( {one => [],                two => ['foo'],                 name => 8,  status => q{FAIL}} );
+    test_report( {one => ['foo'],           two => ['foo'],                 name => 9,  status => q{OK}} );
+    test_report( {one => ['foo', 'bar'],    two => ['foo'],                 name => 10, status => q{OK}} );
+    test_report( {one => ['foo'],           two => ['bar'],                 name => 11, status => q{FAIL}} );
+    test_report( {one => ['foo'],           two => ['foo', 'bar'],          name => 11, status => q{FAIL}} );
+
 };
 if ($@) {
     warn  "\n\nAn error occured : $@";
@@ -141,3 +160,11 @@ $CWD = $cwd_bak;
 system( qq{ rm -Rf $git_repo } );
 
 done_testing;
+
+sub test_report {
+    my ($param) = @_;
+    my $test_file = QohA::File::Perl->new(path => 'qa-test');
+    $test_file->add_to_report($param->{name}, $param->{one});
+    $test_file->add_to_report($param->{name}, $param->{two});
+    is( $test_file->report->to_string({verbosity => 0, name => $param->{name}}) =~ m|$param->{status}|, 1 , "test report $param->{name}");
+}

@@ -17,20 +17,14 @@ has 'report' => (
 sub run_checks {
     my ($self) = @_;
     my @r = $self->check_parse_yaml();
-    $self->report->add(
-        {
-            file => $self,
-            name => 'yaml_valid',
-            error => ( @r ? \@r : '' ),
-        }
-    );
+    $self->SUPER::add_to_report('yaml_valid', \@r);
 }
 
 sub check_parse_yaml {
     my ($self) = @_;
-    return 1 unless -e $self->path;
+    return 0 unless -e $self->path;
     eval { YAML::LoadFile($self->abspath); };
-    return 1 unless $@;
+    return 0 unless $@;
 
     my @r;
     for my $line ( split '\n', $@ ) {

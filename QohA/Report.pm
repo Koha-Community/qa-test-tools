@@ -34,7 +34,9 @@ sub add {
 sub to_string {
     my ($self, $params) = @_;
     my $verbosity = $params->{verbosity} // 0;
-    my $color = $params->{color} // 1;
+    my $color     = $params->{color} // 1;
+    my $task_name = $params->{name};
+
     my $STATUS_KO = $color
         ? "${RED}FAIL${END}"
         : "FAIL";
@@ -43,6 +45,10 @@ sub to_string {
         : "OK";
 
     my $tasks = $self->tasks;
+    if ( defined $task_name ) {
+        $tasks = { $task_name => $tasks->{$task_name} }
+    }
+
     my ( $v1, $v2 );
     my $errors_cpt = 0;
     my ($status, $v1_status);

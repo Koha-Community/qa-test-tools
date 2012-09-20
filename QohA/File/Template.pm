@@ -28,40 +28,16 @@ sub run_checks {
     my ($self, $cnt) = @_;
     my $r;
     $r = $self->check_tt_valid();
-    $self->report->add(
-        {
-            file => $self,
-            name => 'tt_valid',
-            error => ( $r ? $r : '' ),
-        }
-    );
+    $self->SUPER::add_to_report('tt_valid', $r);
 
     $r = $self->check_valid_template();
-    $self->report->add(
-        {
-            file => $self,
-            name => 'valid_template',
-            error => ( $r ? $r : '' ),
-        }
-    );
+    $self->SUPER::add_to_report('valid_template', $r);
 
     if ( $self->pass == 1 ) {
-        $self->report->add(
-            {
-                file => $self,
-                name => 'forbidden patterns',
-                error => ''
-            }
-        );
+        $self->SUPER::add_to_report('forbidden patterns', '');
     } else {
         $r = $self->check_forbidden_patterns($cnt);
-        $self->report->add(
-            {
-                file => $self,
-                name => 'forbidden patterns',
-                error => ( $r ? $r : '' ),
-            }
-        );
+        $self->SUPER::add_to_report('forbidden patterns', $r);
     }
 
     $self->pass($self->pass + 1);
@@ -82,7 +58,7 @@ sub check_tt_valid {
     }
     return @lines
         ? "lines " . join ', ', @lines
-        : "";
+        : q{};
 }
 
 sub check_valid_template {

@@ -32,43 +32,19 @@ sub run_checks {
 
     # Check perl critic
     $r = $self->check_critic();
-    $self->report->add(
-        {
-            file => $self,
-            name => 'critic',
-            error => ( defined $r ? $r : '' ),
-        }
-    );
+    $self->SUPER::add_to_report('critic', $r);
 
     # Check perl -cw
     $r = $self->check_valid();
-    $self->report->add(
-        {
-            file => $self,
-            name => 'valid',
-            error => ( defined $r ? $r : '' ),
-        }
-    );
+    $self->SUPER::add_to_report('valid', $r);
 
     # Check pod (Pod::Checker)
     $r = $self->check_pod();
-    $self->report->add(
-        {
-            file => $self,
-            name => 'pod',
-            error => ( defined $r ? $r : '' ),
-        }
-    );
+    $self->SUPER::add_to_report('pod', $r);
 
     # Check patterns
     $r = $self->check_forbidden_patterns($cnt);
-    $self->report->add(
-        {
-            file => $self,
-            name => 'forbidden patterns',
-            error => ( defined $r ? $r : '' ),
-        }
-    );
+    $self->SUPER::add_to_report('forbidden patterns', $r);
 }
 
 sub check_critic {
@@ -110,10 +86,10 @@ sub check_critic {
       run( command => $cmd, verbose => 0 );
 
     # If it is the first pass, we stop here
-    return 1 if $self->pass == 1;
+    return 0 if $self->pass == 1;
 
     # And if it is a success (ie. no regression)
-    return 1 if $success;
+    return 0 if $success;
 
     # Encapsulate the potential errors
     my @errors;
@@ -129,19 +105,19 @@ sub check_critic {
 
     return @errors
         ? \@errors
-        : 1;
+        : 0;
 }
 
 
 sub check_valid {
     my ($self) = @_;
-    return 1 unless -e $self->path;
+    return 0 unless -e $self->path;
     # Simple check with perl -cw
     my $path = $self->path;
     my $cmd = qq|perl -cw $path 2>&1|;
     my $rs = qx|$cmd|;
     ## File is ok if the returned string just contains "syntax OK"
-    return 1 if $rs =~ /^$path syntax OK$/;
+    return 0 if $rs =~ /^$path syntax OK$/;
     chomp $rs;
     # Remove useless information
     $rs =~ s/\nBEGIN.*//;
@@ -170,7 +146,7 @@ sub check_forbidden_patterns {
 
 sub check_pod {
     my ($self) = @_;
-    return 1 unless -e $self->path;
+    return 0 unless -e $self->path;
 
     my $cmd = q{
         perl -e "use Pod::Checker;
@@ -191,7 +167,7 @@ sub check_pod {
 
     return @errors
         ? \@errors
-        : 1;
+        : 0;
 }
 
 1;

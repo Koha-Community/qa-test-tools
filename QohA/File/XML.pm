@@ -17,13 +17,7 @@ has 'report' => (
 sub run_checks {
     my ($self) = @_;
     my @r = $self->check_parse_xml();
-    $self->report->add(
-        {
-            file => $self,
-            name => 'xml_valid',
-            error => ( @r ? \@r : '' ),
-        }
-    );
+    $self->SUPER::add_to_report('xml_valid', \@r);
 }
 
 sub check_parse_xml {
@@ -31,7 +25,7 @@ sub check_parse_xml {
     my $parser = XML::LibXML->new();
     my $abspath = $self->abspath;
     eval { $parser->parse_file($abspath); };
-    return 1 unless $@;
+    return 0 unless $@;
     my @r;
     for my $line ( split '\n', $@ ) {
         next unless $line;
