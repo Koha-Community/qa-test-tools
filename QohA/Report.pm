@@ -96,9 +96,21 @@ sub diff {
     $current = [$current] unless ref $current;
     $before  = [$before]  unless ref $before;
 
-    my $lc = List::Compare->new( '-u', $current, $before );
+    # count the number of occurrence of each error
+    my ( %nb_occ_current, %nb_occ_before );
+    $nb_occ_current{$_} += 1 for @$current;
+    $nb_occ_before{$_} += 1 for @$before;
 
-    return $lc->get_unique;
+    # If the error did not exist before
+    # or if this error occurs more than before
+    # it is a regression
+    my @errors;
+    while ( my ( $err, $nb ) = each %nb_occ_current ) {
+        push @errors, $err
+            if not defined $nb_occ_before{$err}
+                or $nb_occ_current{$err} > $nb_occ_before{$err};
+    }
+    return @errors;
 }
 
 1;

@@ -149,7 +149,9 @@ EOL
     test_report( {one => ['foo'],           two => ['foo'],                 name => 9,  status => q{OK}} );
     test_report( {one => ['foo', 'bar'],    two => ['foo'],                 name => 10, status => q{OK}} );
     test_report( {one => ['foo'],           two => ['bar'],                 name => 11, status => q{FAIL}} );
-    test_report( {one => ['foo'],           two => ['foo', 'bar'],          name => 11, status => q{FAIL}} );
+    test_report( {one => ['foo'],           two => ['foo', 'bar'],          name => 12, status => q{FAIL}} );
+    test_report( {one => ['foo', 'foo'],    two => ['foo', 'foo', 'foo'],   name => 13, status => q{FAIL}} );
+    test_report( {one => ['foo', 'foo'],    two => ['foo', 'bar', 'foo'],   name => 14, status => q{FAIL}} );
 
 };
 if ($@) {
