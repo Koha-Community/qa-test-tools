@@ -6,31 +6,22 @@ run some QA tests on the last $x commits, in a Koha git repo
             /path/to/your/koha.git:\
             /path/to/your/koha.git/C4/SIP
 
-2/ cd to your Koha git repo
+2/ copy perlcriticrc file to your home dir (important!)
+    $ cp /path/to/your/koha-qa-tools/perlcriticrc ~/
+
+3/ cd to your Koha git repo
     $ cd /path/to/your/koha.git
 
-3/ apply a new patch to test
+4/ apply a new patch to test
     $ git bz apply 4460
 
-4/ run a qa-test on your Koha git repo, for the last commit
-    $ /path/to/your/koha-qa.pl
-
-    testing 1 commit(s) (applied to commit 8561d96)
-     * 969345c test patch to fail 'perl -cw'
-          mainpage.pl
-
-    - perlcritic-progressive tests...                 OK
-    - perl -c syntax tests...                         FAIL
-    - xt/tt_valid.t tests...                          OK
-    - xt/author/valid-template.t tests...             OK
-    - t/00-valid-xml.t tests...                       OK
+5/ run a qa-test on your Koha git repo, for the last commit
+    $ koha-qa.pl -c 1
 
 
 
 use -c to test the last $NUM of commits
     $ koha-qa.pl -c 5
 
-use -v to change verbosity (default is '1')
-    $ koha-qa.pl  -v 0
+use -v to change verbosity (default is 0)
     $ koha-qa.pl  -v 2
-
