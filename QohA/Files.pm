@@ -22,7 +22,7 @@ sub BUILD {
         push @{ $self->files }, QohA::File::XML->new(path => $file)
             if $file =~ qr/\.xml$|\.xsl$|\.xslt$/i;
         push @{ $self->files }, QohA::File::Perl->new(path => $file)
-            if $file =~ qr/\.pl$|\.pm$/i;
+            if $file =~ qr/\.pl$|\.pm$|\.t$/i;
         push @{ $self->files }, QohA::File::Template->new(path => $file)
             if $file =~ qr/\.tt$|\.inc$/i;
         push @{ $self->files }, QohA::File::YAML->new(path => $file)
