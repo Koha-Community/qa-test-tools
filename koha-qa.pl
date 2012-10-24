@@ -85,7 +85,7 @@ eval {
 };
 
 if ($@) {
-    say "\n\nAn error occured : $@";
+    say "\n\nAn error occurred : $@";
 }
 
 $git->change_branch($branch);
