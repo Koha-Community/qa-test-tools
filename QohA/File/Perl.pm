@@ -61,20 +61,23 @@ sub check_critic {
         qx|rm $conf| if ( -e $conf ) ;
     }
 
-    # If the tested file is deleted in the commit,  we return 0
-    return 0 unless -e $self->path;
+    # If the file does not exist anymore, we return 0
+    unless ( -e $self->path ) {
+        $self->new_file(1);
+        return 0;
+    }
 
-    # If the tested file is newly created int the commit, (ie: nothing existing to compare too),  we call Perl::Critic, not Test::Perl::Critic::Progressive
-     unless (-e $self->path)  {
+    # If first pass returns 0 then the file did not exist
+    # And we have to pass Perl::Critic instead of Test::Perl::Critic::Progressive
+    if ( $self->report->tasks->{critic}
+            and $self->new_file ) {
         my $critic = Perl::Critic->new();
         # Serialize the violations to strings
         my @violations = map {
             my $v = $_; chomp $v; "$v";
         } $critic->critique($self->path);
         return \@violations;
-    } 
-
-#    else....
+    }
 
     # Check with Test::Perl::Critic::Progressive
     my $cmd = qq{

@@ -20,6 +20,11 @@ has 'abspath' => (
     builder => '_build_abspath',
 );
 
+has 'new_file' => (
+    is => 'rw',
+    default => sub {0},
+);
+
 sub _build_filename {
     my ($self) = @_;
     return basename( $self->path );
