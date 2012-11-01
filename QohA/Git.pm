@@ -1,7 +1,7 @@
 package QohA::Git;
 
 use Modern::Perl;
-use Smart::Comments  -ENV, '####';
+use Smart::Comments  -ENV;
 
 use Moo;
 
@@ -58,7 +58,7 @@ sub log_as_string {
 
         my @a = split '\t', $l;
         my ($sha, $diff, $action, $filename);
-#### @a
+
         if ( $a[0] =~ /^\w{7} / and not defined $a[2] ) {
             $sha = $a[0];
             $filename = $a[1];

@@ -1,5 +1,7 @@
 package QohA::File::Perl;
 
+use Smart::Comments  -ENV;
+
 use Modern::Perl;
 use Moo;
 extends 'QohA::File';
@@ -119,14 +121,22 @@ sub check_valid {
     my $path = $self->path;
     my $cmd = qq|perl -cw $path 2>&1|;
     my $rs = qx|$cmd|;
+
     ## File is ok if the returned string just contains "syntax OK"
     return 0 if $rs =~ /^$path syntax OK$/;
+
     chomp $rs;
     # Remove useless information
     $rs =~ s/\nBEGIN.*//;
+
+
     my @errors = split '\n', $rs;
     s/at .* line .*$// for @errors;
     s/.*syntax OK$// for @errors;
+
+# added exception to 'Subroutine $FOO redefined' warnings
+    s/^Subroutine .* redefined $// for @errors;
+
     @errors = grep {!/^$/} @errors;
     return \@errors;
 }
