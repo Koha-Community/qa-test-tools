@@ -76,7 +76,7 @@ sub to_string {
     $status = $errors_cpt
         ? $STATUS_KO
         : $STATUS_OK;
-    my $s = pack( "A75", "* " . $self->file->path ) . $status;
+    my $s = pack( "A76", " * " . $self->file->path ) . $status;
     $s .= $v1 if $verbosity >= 1;
 
     return $s;

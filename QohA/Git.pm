@@ -44,43 +44,33 @@ sub diff_log {
 
 sub log_as_string {
     my ($cnt) = @_;
+
     my @logs = qx{git log --oneline --numstat -$cnt};
 
-#### @logs
-
-    my $cc = get_prev_commit($cnt);
-
     my $r;
+    my ( $cc, $cdesc ) = get_prev_commit($cnt);
+
+    chomp $cdesc;
+    $cdesc = substr $cdesc, 0, 37;
+    $r .= "testing $cnt commit(s) (applied to $cc '$cdesc')\n";
+
     my $i = 0;
     foreach my $l (@logs) {
         chomp $l;
 
-
         my @a = split '\t', $l;
-        my ($sha, $diff, $action, $filename);
+        my ( $sha, $diff, $action, $filename, $desc );
 
         if ( $a[0] =~ /^\w{7} / and not defined $a[2] ) {
-            $sha = $a[0];
-            $filename = $a[1];
-        } else {
-            $diff = $a[0];
-            $filename = $a[2];
-        }
-
-        # if its a commit lines
-        if ($sha) {
-
-            $r .= "testing $cnt commit(s) (applied to commit $cc)" if $i == 0;
-
-            $l = substr $a[0], 0, 70;
-            $r .= "\n * $a[0]";
+            $desc = $a[0];
+            $desc = substr $desc, 0, 77;
+            $r .= "\n $desc\n";
         }
         else {
-
-            $r .= "      $filename";
-
+            $diff     = $a[0];
+            $filename = $a[2];
+            $r .= " - $filename\n" if $filename;
         }
-        $r .= "\n";
         $i++;
     }
     return "$r\n";
@@ -116,12 +106,13 @@ sub get_current_branch {
 
 sub get_prev_commit {
     my ($cnt) = @_;
-    my $cc =
+    my $c =
       qx{git log --abbrev-commit --format=oneline -n 1 HEAD~$cnt};
-    $cc =~ s/ .*//;
 
-    chomp $cc;
-    return $cc;
+    my $cc = substr $c , 0, 7;
+    my $cdesc = substr $c , 8;
+
+    return $cc, $cdesc;
 
 }
 

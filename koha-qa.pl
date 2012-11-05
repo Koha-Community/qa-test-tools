@@ -1,6 +1,5 @@
 #!/usr/bin/perl -w
 
-
 our ($v, $d, $c, $nocolor, $help);
 
 BEGIN {
@@ -25,7 +24,6 @@ BEGIN {
 
 }
 
-
 use Modern::Perl;
 use Test::Perl::Critic::Progressive qw / get_history_file/;
 use Getopt::Long;
@@ -33,11 +31,6 @@ use Getopt::Long;
 use QohA::Git;
 use QohA::Files;
 use File::HomeDir;
-
-
-
-
-
 
 BEGIN {
     eval "require Test::Perl::Critic::Progressive";
@@ -58,7 +51,7 @@ my ( $new_fails, $already_fails, $skip, $error_code, $full ) = 0;
 
 eval {
 
-    print "\n" . QohA::Git::log_as_string($num_of_commits);
+    print QohA::Git::log_as_string($num_of_commits);
 
     my $modified_files = QohA::Files->new( { files => $git->log($num_of_commits) } );
 
