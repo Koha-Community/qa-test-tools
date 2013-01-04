@@ -105,6 +105,7 @@ sub check_forbidden_patterns {
 
     my @forbidden_patterns = (
         {pattern => qr{console.log}, error => "console.log"},
+        {pattern => qr{_\('.*'\)}, error => "simple-quote string"},
     );
 
     my $errors = $self->SUPER::check_forbidden_patterns($cnt, \@forbidden_patterns);
