@@ -101,6 +101,7 @@ sub check_critic {
     for my $line (@$full_buf) {
         chomp $line;
 
+        $line =~ s/\n//g;
         $line =~ s/Expected no more than.*$//g;
 
         next if $line =~ qr/Too many Perl::Critic violations/;
