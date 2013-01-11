@@ -104,8 +104,13 @@ sub check_forbidden_patterns {
     my ($self, $cnt) = @_;
 
     my @forbidden_patterns = (
-        {pattern => qr{console.log}, error => "console.log"},
-        {pattern => qr{_\('.*'\)}, error => "simple-quote string"},
+        {pattern => qr{console.log} , error => "console.log"},
+        {pattern => qr{_\('.*'\)}   , error => "simple-quote string"},
+        {pattern => qr{<<<<<<<}     , error => "merge marker (<<<<<<<)"}, # git merge non terminated
+        {pattern => qr{>>>>>>>}     , error => "merge marker (>>>>>>>)"},
+        {pattern => qr{=======}     , error => "merge marker (=======)"},
+        {pattern => qr{\t},         , error => "tabulation character"},   # tab caracters
+        {pattern => qr{ $},         , error => "withespace character "},  # withespace caracters
     );
 
     my $errors = $self->SUPER::check_forbidden_patterns($cnt, \@forbidden_patterns);
