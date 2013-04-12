@@ -38,8 +38,8 @@ BEGIN {
 "Test::Perl::Critic::Progressive is not installed \nrun:\ncpan install Test::Perl::Critic::Progressive\nto install it\n"
       if $@;
 
-    my $pc_rc = File::HomeDir->my_home . '/perlcriticrc';
-    die "your ~/perlcriticrc file is missing..." unless  ( -e  $pc_rc )
+    my $pc_rc = File::HomeDir->my_home . '/.perlcriticrc';
+    die "your ~/.perlcriticrc file is missing..." unless  ( -e  $pc_rc )
 }
 
 $c = 1 unless $c;
