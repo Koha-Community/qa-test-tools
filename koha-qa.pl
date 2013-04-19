@@ -25,12 +25,10 @@ BEGIN {
 }
 
 use Modern::Perl;
-use Test::Perl::Critic::Progressive qw / get_history_file/;
+use Test::Perl::Critic::Progressive ( ':all' );
 use Getopt::Long;
-
 use QohA::Git;
 use QohA::Files;
-use File::HomeDir;
 
 BEGIN {
     eval "require Test::Perl::Critic::Progressive";
@@ -38,8 +36,9 @@ BEGIN {
 "Test::Perl::Critic::Progressive is not installed \nrun:\ncpan install Test::Perl::Critic::Progressive\nto install it\n"
       if $@;
 
-    my $pc_rc = File::HomeDir->my_home . '/.perlcriticrc';
-    die "your ~/.perlcriticrc file is missing..." unless  ( -e  $pc_rc )
+    my $pc_rc =  './t/perlcriticrc';
+    set_critic_args(-profile => $pc_rc);
+    die "Koha's $pc_rc file is missing..." unless  ( -e  $pc_rc )
 }
 
 $c = 1 unless $c;
@@ -138,7 +137,7 @@ This software is Copyright (c) 2012 by KohaAloha and BibLibre
 This file is part of Koha.
 
 Koha is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later version.
+Foundation; either version 3 of the License, or (at your option) any later version.
 
 You should have received a copy of the GNU General Public License along
 with Koha; if not, write to the Free Software Foundation, Inc.,
