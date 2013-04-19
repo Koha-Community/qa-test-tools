@@ -1,21 +1,18 @@
-run some QA tests on the last $x commits, in a Koha git repo
+use this tool to run some QA tests on the last $x commits, in a Koha git repo
 
-1/ first, configure your shell vars correctly
+1/ configure your shell vars correctly
     $ export KOHA_CONF=/path/to/your/koha/koha-conf.xml
     $ export PERL5LIB="${PERL5LIB}":\
             /path/to/your/koha.git:\
             /path/to/your/koha.git/C4/SIP
 
-2/ copy perlcriticrc file to your home dir (important!)
-    $ cp /path/to/your/koha-qa-tools/perlcriticrc ~/
-
-3/ cd to your Koha git repo
+2/ change to your Koha git repo
     $ cd /path/to/your/koha.git
 
-4/ apply a new patch to test
+3/ apply a new patch to test
     $ git bz apply 4460
 
-5/ run a qa-test on your Koha git repo, for the last commit
+4/ run a qa-test on your Koha git repo, for the last commit
     $ koha-qa.pl -c 1
 
 
