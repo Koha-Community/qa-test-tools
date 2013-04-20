@@ -83,55 +83,58 @@ eval {
     our $STATUS_KO = "${RED}FAIL${END}";
     our $STATUS_OK = "${GREEN}OK${END}";
     my $r_v0_expected = <<EOL;
- * perl/i_fail_patterns.pl                                                  $STATUS_KO
- * perl/i_fail_compil.pl                                                    $STATUS_KO
- * perl/i_fail_critic.pl                                                    $STATUS_KO
- * perl/i_m_ok.pl                                                           $STATUS_OK
- * tmpl/i_fail_patterns.tt                                                  $STATUS_KO
- * tmpl/i_fail_tt_valid.tt                                                  $STATUS_KO
- * tmpl/i_fail_valid_template.tt                                            $STATUS_KO
- * tmpl/i_will_be_correct_tt_valid.tt                                       $STATUS_OK
- * i_fail_yaml.yaml                                                         $STATUS_KO
+ $STATUS_KO	perl/i_fail_patterns.pl
+ $STATUS_KO	perl/i_fail_compil.pl
+ $STATUS_KO	perl/i_fail_critic.pl
+ $STATUS_OK	perl/i_m_ok.pl
+ $STATUS_KO	tmpl/i_fail_tt_valid.tt
+ $STATUS_KO	tmpl/i_fail_valid_template.tt
+ $STATUS_OK	tmpl/i_will_be_correct_tt_valid.tt
+ $STATUS_KO	i_fail_yaml.yaml
 EOL
     my $r_v1_expected = <<EOL;
- * perl/i_fail_patterns.pl                                                  $STATUS_KO
-	pod                         $STATUS_OK
-	forbidden patterns          $STATUS_KO
-	valid                       $STATUS_KO
-	critic                      $STATUS_OK
- * perl/i_fail_compil.pl                                                    $STATUS_KO
-	pod                         $STATUS_OK
-	forbidden patterns          $STATUS_OK
-	valid                       $STATUS_KO
-	critic                      $STATUS_OK
- * perl/i_fail_critic.pl                                                    $STATUS_KO
-	pod                         $STATUS_OK
-	forbidden patterns          $STATUS_OK
-	valid                       $STATUS_OK
-	critic                      $STATUS_KO
- * perl/i_m_ok.pl                                                           $STATUS_OK
-	pod                         $STATUS_OK
-	forbidden patterns          $STATUS_OK
-	valid                       $STATUS_OK
-	critic                      $STATUS_OK
- * tmpl/i_fail_patterns.tt                                                  $STATUS_KO
-	forbidden patterns          $STATUS_KO
-	tt_valid                    $STATUS_OK
-	valid_template              $STATUS_OK
- * tmpl/i_fail_tt_valid.tt                                                  $STATUS_KO
-	forbidden patterns          $STATUS_OK
-	tt_valid                    $STATUS_KO
-	valid_template              $STATUS_OK
- * tmpl/i_fail_valid_template.tt                                            $STATUS_KO
-	forbidden patterns          $STATUS_OK
-	tt_valid                    $STATUS_OK
-	valid_template              $STATUS_KO
- * tmpl/i_will_be_correct_tt_valid.tt                                       $STATUS_OK
-	forbidden patterns          $STATUS_OK
-	tt_valid                    $STATUS_OK
-	valid_template              $STATUS_OK
- * i_fail_yaml.yaml                                                         $STATUS_KO
-	yaml_valid                  $STATUS_KO
+ $STATUS_KO	perl/i_fail_patterns.pl
+   $STATUS_OK	  pod
+   $STATUS_KO	  forbidden patterns
+   $STATUS_KO	  valid
+   $STATUS_OK	  critic
+
+ $STATUS_KO	perl/i_fail_compil.pl
+   $STATUS_OK	  pod
+   $STATUS_OK	  forbidden patterns
+   $STATUS_KO	  valid
+   $STATUS_OK	  critic
+
+ $STATUS_KO	perl/i_fail_critic.pl
+   $STATUS_OK	  pod
+   $STATUS_OK	  forbidden patterns
+   $STATUS_OK	  valid
+   $STATUS_KO	  critic
+
+ $STATUS_OK	perl/i_m_ok.pl
+   $STATUS_OK	  pod
+   $STATUS_OK	  forbidden patterns
+   $STATUS_OK	  valid
+   $STATUS_OK	  critic
+
+ $STATUS_KO	tmpl/i_fail_tt_valid.tt
+   $STATUS_OK	  forbidden patterns
+   $STATUS_KO	  tt_valid
+   $STATUS_OK	  valid_template
+
+ $STATUS_KO	tmpl/i_fail_valid_template.tt
+   $STATUS_OK	  forbidden patterns
+   $STATUS_OK	  tt_valid
+   $STATUS_KO	  valid_template
+
+ $STATUS_OK	tmpl/i_will_be_correct_tt_valid.tt
+   $STATUS_OK	  forbidden patterns
+   $STATUS_OK	  tt_valid
+   $STATUS_OK	  valid_template
+
+ $STATUS_KO	i_fail_yaml.yaml
+   $STATUS_KO	  yaml_valid
+
 EOL
 
     my ( $r_v0, $r_v1 );

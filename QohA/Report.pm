@@ -52,9 +52,12 @@ sub to_string {
     my ( $v1, $v2 );
     my $errors_cpt = 0;
     my ($status, $v1_status);
+
+
     while ( my ($name, $results) = each %$tasks ) {
         my @diff = $self->diff($results);
-        $v1 .= pack( "A30", "\n\t$name");
+
+        my $task_status = $STATUS_OK;
         if ( @diff ) {
             my @diff_ko;
             for my $d ( @diff ) {
@@ -64,19 +67,21 @@ sub to_string {
             }
             if ( @diff_ko ) {
                 $errors_cpt++;
-                $v1 .= $STATUS_KO;
+                $task_status = $STATUS_KO;
+
                 if ( $verbosity >= 2 ) {
-                    $v1 .= "\n\t\t$_" for @diff
+                    $v1 .= "\n\t\t$_" for @diff;
                 }
-                next;
             }
         }
-        $v1 .= $STATUS_OK;
+        $v1 .= "\n   " . $task_status ."\t  $name";
     }
+    $v1 .= "\n"; # add a pretty \n between files
+
     $status = $errors_cpt
         ? $STATUS_KO
         : $STATUS_OK;
-    my $s = pack( "A76", " * " . $self->file->path ) . $status;
+    my $s = " $status\t" .  $self->file->path;
     $s .= $v1 if $verbosity >= 1;
 
     return $s;

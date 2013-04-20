@@ -28,8 +28,6 @@ sub log {
         next if not defined $cols[2];
         push @r1, $cols[2];
     }
-#### @r1
-
     return \@r1 ;
 }
 
@@ -54,6 +52,10 @@ sub log_as_string {
     $cdesc = substr $cdesc, 0, 37;
     $r .= "testing $cnt commit(s) (applied to $cc '$cdesc')\n";
 
+=c
+    # there is no need for this display code,
+    # the filenames are displayed elsewhere...
+
     my $i = 0;
     foreach my $l (@logs) {
         chomp $l;
@@ -69,10 +71,12 @@ sub log_as_string {
         else {
             $diff     = $a[0];
             $filename = $a[2];
-            $r .= " - $filename\n" if $filename;
+#            $r .= " - $filename\n" if $filename;
         }
         $i++;
     }
+=cut
+
     return "$r\n";
 }
 
