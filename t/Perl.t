@@ -87,6 +87,7 @@ eval {
  $STATUS_KO	perl/i_fail_compil.pl
  $STATUS_KO	perl/i_fail_critic.pl
  $STATUS_OK	perl/i_m_ok.pl
+ $STATUS_KO	tmpl/i_fail_patterns.tt
  $STATUS_KO	tmpl/i_fail_tt_valid.tt
  $STATUS_KO	tmpl/i_fail_valid_template.tt
  $STATUS_OK	tmpl/i_will_be_correct_tt_valid.tt
@@ -116,6 +117,11 @@ EOL
    $STATUS_OK	  forbidden patterns
    $STATUS_OK	  valid
    $STATUS_OK	  critic
+
+ $STATUS_KO	tmpl/i_fail_patterns.tt
+   $STATUS_KO	  forbidden patterns
+   $STATUS_OK	  tt_valid
+   $STATUS_OK	  valid_template
 
  $STATUS_KO	tmpl/i_fail_tt_valid.tt
    $STATUS_OK	  forbidden patterns
