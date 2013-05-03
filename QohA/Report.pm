@@ -58,8 +58,8 @@ sub to_string {
         my @diff = $self->diff($results);
 
         my $task_status = $STATUS_OK;
+        my @diff_ko;
         if ( @diff ) {
-            my @diff_ko;
             for my $d ( @diff ) {
                 next unless $d;  # if $d eq "" FIXME
                 next if $d =~ /^\d$/ and $d ~~ 1; # if $d == 1  We have to bring consistency for the returns of the check* routine
@@ -68,13 +68,12 @@ sub to_string {
             if ( @diff_ko ) {
                 $errors_cpt++;
                 $task_status = $STATUS_KO;
-
-                if ( $verbosity >= 2 ) {
-                    $v1 .= "\n\t\t$_" for @diff;
-                }
             }
         }
         $v1 .= "\n   " . $task_status ."\t  $name";
+        if ( $verbosity >= 2 ) {
+            $v1 .= "\n\t\t$_" for @diff;
+        }
     }
     $v1 .= "\n"; # add a pretty \n between files
 
