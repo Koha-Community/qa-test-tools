@@ -1,0 +1,14 @@
+<html>
+  <head>
+    <script type="javascript">
+      alert(_("I am a sweet string"));
+      alert(_('I am a bad string'));
+      var i = "bad"
+      alert(_('I am a ') + i + _("string"));
+    </script>
+  </head>
+  <body>
+    foo/bar
+  </body>
+</html>
+
