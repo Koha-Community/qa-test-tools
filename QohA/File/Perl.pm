@@ -153,6 +153,7 @@ sub check_forbidden_patterns {
         {pattern => qr{IFNULL}  , error => "IFNULL (must be replaced by COALESCE)"},  # COALESCE is preferable
         {pattern => qr{\t},     , error => "tabulation character"},  # tab caracters
         {pattern => qr{ $},    , error => "withespace character "},  # withespace caracters
+        {pattern => qr{IndependantBranches}, error => "IndependantBranches is now known as IndependentBranches"},  # Bug 10080 renames IndependantBranches to IndependentBranches
     );
 
     return $self->SUPER::check_forbidden_patterns($cnt, \@forbidden_patterns);
