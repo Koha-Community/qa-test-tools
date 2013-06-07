@@ -151,8 +151,8 @@ sub check_forbidden_patterns {
         {pattern => qr{>>>>>>>}, error => "merge marker (>>>>>>>)"},
         {pattern => qr{=======}, error => "merge marker (=======)"},
         {pattern => qr{IFNULL}  , error => "IFNULL (must be replaced by COALESCE)"},  # COALESCE is preferable
-        {pattern => qr{\t},     , error => "tabulation character"},  # tab caracters
-        {pattern => qr{ $},    , error => "withespace character "},  # withespace caracters
+        {pattern => qr{\t},     , error => "tab char"},
+        {pattern => qr{ $},    , error => "trailing space char"},
         {pattern => qr{IndependantBranches}, error => "IndependantBranches is now known as IndependentBranches"},  # Bug 10080 renames IndependantBranches to IndependentBranches
     );
 

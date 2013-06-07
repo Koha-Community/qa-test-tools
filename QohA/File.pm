@@ -55,7 +55,7 @@ sub check_forbidden_patterns {
         next if $line =~ m|^-|;
         $line_number++ and next unless $line =~ m|^\+|;
         for my $fp ( @forbidden_patterns ) {
-            push @errors, "The patch introduces a forbidden pattern: " . $fp->{error} . " ($line_number)"
+            push @errors, "forbidden pattern: " . $fp->{error} . " (line $line_number)"
                 if $line =~ /^\+.*$fp->{pattern}/;
         }
         $line_number++;

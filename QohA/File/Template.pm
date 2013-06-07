@@ -109,8 +109,8 @@ sub check_forbidden_patterns {
         {pattern => qr{<<<<<<<}     , error => "merge marker (<<<<<<<)"}, # git merge non terminated
         {pattern => qr{>>>>>>>}     , error => "merge marker (>>>>>>>)"},
         {pattern => qr{=======}     , error => "merge marker (=======)"},
-        {pattern => qr{\t},         , error => "tabulation character"},   # tab caracters
-        {pattern => qr{ $},         , error => "withespace character "},  # withespace caracters
+        {pattern => qr{\t},         , error => "tab char"},
+        {pattern => qr{ $},         , error => "trailing space char"},
     );
 
     my $errors = $self->SUPER::check_forbidden_patterns($cnt, \@forbidden_patterns);
