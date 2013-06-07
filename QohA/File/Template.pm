@@ -109,8 +109,10 @@ sub check_forbidden_patterns {
         {pattern => qr{<<<<<<<}     , error => "merge marker (<<<<<<<)"}, # git merge non terminated
         {pattern => qr{>>>>>>>}     , error => "merge marker (>>>>>>>)"},
         {pattern => qr{=======}     , error => "merge marker (=======)"},
-        {pattern => qr{\t},         , error => "tab char"},
-        {pattern => qr{ $},         , error => "trailing space char"},
+        {pattern => qr{\t}          , error => "tab char"},
+        {pattern => qr{ $}          , error => "trailing space char"},
+        {pattern => qr{intranet-tmpl},error => "intranet-tmpl should certainly replaced with [% interface %]"},
+        {pattern => qr{opac-tmpl}   , error => "opac-tmpl should certainly replaced with [% interface %]"},
     );
 
     my $errors = $self->SUPER::check_forbidden_patterns($cnt, \@forbidden_patterns);

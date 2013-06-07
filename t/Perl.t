@@ -8,7 +8,7 @@ use QohA::Git;
 use QohA::Files;
 
 
-my $num_of_commits = 3;
+my $num_of_commits = 4;
 my $v = 1;
 my $git_repo = 't/git_repo_tmp';
 my $cwd_bak = $CWD;
@@ -87,6 +87,7 @@ eval {
  $STATUS_KO	perl/i_fail_compil.pl
  $STATUS_KO	perl/i_fail_critic.pl
  $STATUS_OK	perl/i_m_ok.pl
+ $STATUS_KO	tmpl/i_fail_patterns_theme.tt
  $STATUS_KO	tmpl/i_fail_patterns.tt
  $STATUS_KO	tmpl/i_fail_tt_valid.tt
  $STATUS_KO	tmpl/i_fail_valid_template.tt
@@ -117,6 +118,11 @@ EOL
    $STATUS_OK	  forbidden patterns
    $STATUS_OK	  valid
    $STATUS_OK	  critic
+
+ $STATUS_KO	tmpl/i_fail_patterns_theme.tt
+   $STATUS_KO	  forbidden patterns
+   $STATUS_OK	  tt_valid
+   $STATUS_OK	  valid_template
 
  $STATUS_KO	tmpl/i_fail_patterns.tt
    $STATUS_KO	  forbidden patterns

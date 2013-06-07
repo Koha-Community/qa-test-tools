@@ -1,0 +1,11 @@
+<html>
+  <head>
+    <script type="text/javascript" src="/intranet-tmpl/prog/en/lib/jquery/foo.js" />
+    <script type="text/javascript" src="/opac-tmpl/prog/en/lib/jquery/foo.js" />
+    <script type="text/javascript" src="[% interface %]/prog/en/lib/jquery/foo.js" /> <!-- This one is ok -->
+    <script type="text/javascript" src="[% interface %]/prog/en/lib/jquery/foo.js" /> <!-- This one too -->
+  </head>
+  <body>
+    foo/bar
+  </body>
+</html>
