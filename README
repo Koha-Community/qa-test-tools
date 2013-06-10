@@ -1,4 +1,13 @@
-use this tool to run some QA tests on the last $x commits, in a Koha git repo
+NAME
+       koha-qa.pl
+
+SYNOPSIS
+       koha-qa.pl -c NUMBER_OF_COMMITS [-v VERBOSITY_VALUE] [-d] [--nocolor]
+       [-h]
+
+DESCRIPTION
+       koha-qa.pl runs various QA tests on the last $x commits, in a Koha git
+       repo.
 
 1/ configure your shell vars correctly
     $ export KOHA_CONF=/path/to/your/koha/koha-conf.xml
@@ -6,19 +15,20 @@ use this tool to run some QA tests on the last $x commits, in a Koha git repo
             /path/to/your/koha.git:\
             /path/to/your/koha.git/C4/SIP
 
-2/ change to your Koha git repo
+2/ install perl dependancy packages
+    $ cd /path/to/your/qa-test-tools.git
+    $ sudo cat ./perl-deps | cpanm
+
+3/ run test suite (optional)
+    $ cd /path/to/your/qa-test-tools.git
+    $ prove
+
+4/ change to your Koha git repo
     $ cd /path/to/your/koha.git
 
-3/ apply a new patch to test
+5/ apply a new patch to test (optional)
     $ git bz apply 4460
 
-4/ run a qa-test on your Koha git repo, for the last commit
+6/ run a qa-test on your Koha git repo, for the last commit
     $ koha-qa.pl -c 1
 
-
-
-use -c to test the last $NUM of commits
-    $ koha-qa.pl -c 5
-
-use -v to change verbosity (default is 0)
-    $ koha-qa.pl  -v 2

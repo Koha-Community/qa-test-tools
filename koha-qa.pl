@@ -94,6 +94,13 @@ koha-qa.pl
 
 koha-qa.pl -c NUMBER_OF_COMMITS [-v VERBOSITY_VALUE] [-d] [--nocolor] [-h]
 
+
+=head1 DESCRIPTION
+
+koha-qa.pl runs various QA tests on the last $x commits, in a Koha git repo.
+
+refer to the ./README file for installation info
+
 =head1 OPTIONS
 
 =over 8
