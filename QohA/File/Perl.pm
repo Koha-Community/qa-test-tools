@@ -3,6 +3,7 @@ package QohA::File::Perl;
 use Smart::Comments  -ENV;
 
 use Modern::Perl;
+use File::Basename;
 use Moo;
 extends 'QohA::File';
 
@@ -12,6 +13,10 @@ use IPC::Cmd qw[can_run run];
 
 use QohA::Git;
 use QohA::Report;
+
+
+our $pc_rc =  dirname( $INC{'QohA/File/Perl.pm'} ) . '/../../perlcriticrc';
+die "Koha's $pc_rc file is missing..." unless  ( -e  $pc_rc );
 
 has 'pass' => (
     is => 'rw',
@@ -73,7 +78,7 @@ sub check_critic {
     # And we have to pass Perl::Critic instead of Test::Perl::Critic::Progressive
     if ( $self->report->tasks->{critic}
             and $self->new_file ) {
-        my $critic = Perl::Critic->new();
+        my $critic = Perl::Critic->new(-profile => $pc_rc);
         # Serialize the violations to strings
         my @violations = map {
             my $v = $_; chomp $v; "$v";
@@ -84,6 +89,7 @@ sub check_critic {
     # Check with Test::Perl::Critic::Progressive
     my $cmd = qq{
         perl -e "use Test::Perl::Critic::Progressive(':all');
+        set_critic_args(-profile => '$pc_rc');
         set_history_file('$conf');
         progressive_critic_ok('} . $self->path . qq{')"};
 

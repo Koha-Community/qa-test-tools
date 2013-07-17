@@ -25,7 +25,6 @@ BEGIN {
 }
 
 use Modern::Perl;
-use Test::Perl::Critic::Progressive ( ':all' );
 use Getopt::Long;
 use QohA::Git;
 use QohA::Files;
@@ -35,10 +34,6 @@ BEGIN {
     die
 "Test::Perl::Critic::Progressive is not installed \nrun:\ncpan install Test::Perl::Critic::Progressive\nto install it\n"
       if $@;
-
-    my $pc_rc =  './t/perlcriticrc';
-    set_critic_args(-profile => $pc_rc);
-    die "Koha's $pc_rc file is missing..." unless  ( -e  $pc_rc )
 }
 
 $c = 1 unless $c;
