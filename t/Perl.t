@@ -12,7 +12,10 @@ my $num_of_commits = 4;
 my $v = 1;
 my $git_repo = 't/git_repo_tmp';
 my $cwd_bak = $CWD;
-die "You have to be at the root of the koha-qa-tools project" unless $cwd_bak =~ /koha-qa-tools$/;
+my $git_top_level = `git rev-parse --show-toplevel`;
+chomp $git_top_level;
+die "You have to be at the root of the koha-qa-tools project"
+    if $cwd_bak ne $git_top_level;
 my $dir_patch_path = 't/data';
 
 eval {
