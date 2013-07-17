@@ -13,7 +13,9 @@ DESCRIPTION
     $ export KOHA_CONF=/path/to/your/koha/koha-conf.xml
     $ export PERL5LIB="${PERL5LIB}":\
             /path/to/your/koha.git:\
-            /path/to/your/koha.git/C4/SIP
+            /path/to/your/koha.git/C4/SIP:\
+            /path/to/your/qa-tools.git
+    $ alias qa="/path/to/your/qa-tools.git/koha-qa.pl"
 
 2/ install perl dependancy packages
     $ cd /path/to/your/qa-test-tools.git
@@ -30,5 +32,5 @@ DESCRIPTION
     $ git bz apply 4460
 
 6/ run a qa-test on your Koha git repo, for the last commit
-    $ koha-qa.pl -c 1
+    $ qa -c 1 [-v 2]
 
