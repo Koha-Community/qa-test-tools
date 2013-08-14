@@ -86,6 +86,7 @@ eval {
     our $STATUS_KO = "${RED}FAIL${END}";
     our $STATUS_OK = "${GREEN}OK${END}";
     my $r_v0_expected = <<EOL;
+ $STATUS_KO	perl/i_fail_license.pl
  $STATUS_KO	perl/i_fail_patterns.pl
  $STATUS_KO	perl/i_fail_compil.pl
  $STATUS_KO	perl/i_fail_critic.pl
@@ -98,6 +99,12 @@ eval {
  $STATUS_KO	i_fail_yaml.yaml
 EOL
     my $r_v1_expected = <<EOL;
+ $STATUS_KO	perl/i_fail_license.pl
+   $STATUS_OK	  pod
+   $STATUS_KO	  forbidden patterns
+   $STATUS_OK	  valid
+   $STATUS_OK	  critic
+
  $STATUS_KO	perl/i_fail_patterns.pl
    $STATUS_OK	  pod
    $STATUS_KO	  forbidden patterns

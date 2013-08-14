@@ -160,6 +160,7 @@ sub check_forbidden_patterns {
         {pattern => qr{\t},     , error => "tab char"},
         {pattern => qr{ $},    , error => "trailing space char"},
         {pattern => qr{IndependantBranches}, error => "IndependantBranches is now known as IndependentBranches"},  # Bug 10080 renames IndependantBranches to IndependentBranches
+        {pattern => qr{either version 2 of the License}, error => "Koha is now under the GPLv3 license"}, # see http://wiki.koha-community.org/wiki/Coding_Guidelines#Licence
     );
 
     return $self->SUPER::check_forbidden_patterns($cnt, \@forbidden_patterns);
