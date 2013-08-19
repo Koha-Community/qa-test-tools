@@ -8,6 +8,7 @@ use QohA::File::XML;
 use QohA::File::Perl;
 use QohA::File::Template;
 use QohA::File::YAML;
+use QohA::File::Specific::Sysprefs;
 
 has 'files' => (
     is => 'rw',
@@ -27,14 +28,21 @@ sub BUILD {
             if $file =~ qr/\.tt$|\.inc$/i;
         push @{ $self->files }, QohA::File::YAML->new(path => $file)
             if $file =~ qr/\.yml$|\.yaml$/i;
+        push @{ $self->files }, QohA::File::Specific::Sysprefs->new(path => $file)
+            if $file =~ qr/sysprefs\.sql$/;
     }
 }
 
 sub filter {
-    my ($self, @file_types) = @_;
+    my ($self, $params) = @_;
+    my $file_types = $params->{extension} // [];
+    my $file_names = $params->{name} // [];
+
+    die "QohA::Files::filter > Bad call: extension and name params cannot be filled together"
+        if scalar( @$file_types ) and scalar( @$file_names );
     my @wanted_files;
 
-    for my $type ( @file_types ) {
+    for my $type ( @$file_types ) {
         for my $f ( @{$self->files} ) {
             given ( $type ) {
                 when (/perl/) {
@@ -56,6 +64,14 @@ sub filter {
             }
         }
     }
+
+    if ( @$file_names ) {
+        for my $f ( @{$self->files} ) {
+            push @wanted_files, $f
+                if grep { $_ eq $f->filename } @$file_names;
+        }
+    }
+
     return @wanted_files;
 }
 

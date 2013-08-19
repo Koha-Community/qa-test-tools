@@ -46,10 +46,15 @@ eval {
     $qoha_git->create_and_change_branch( 'qa-prev-commit_t' );
     $qoha_git->reset_hard_prev( $num_of_commits );
 
-    my @files = $modified_files->filter( qw< perl tt xml yaml > );
+    my @files = (
+        $modified_files->filter( { extension => [ qw< perl tt xml yaml > ] } ),
+        $modified_files->filter( { name => [ qw< sysprefs.sql > ] } )
+    );
     for my $f ( @files ) {
         $f->run_checks();
     }
+
+
 
     $qoha_git->change_branch('master');
     $qoha_git->delete_branch( 'qa-current-commit_t' );
@@ -97,6 +102,7 @@ eval {
  $STATUS_KO	tmpl/i_fail_valid_template.tt
  $STATUS_OK	tmpl/i_will_be_correct_tt_valid.tt
  $STATUS_KO	i_fail_yaml.yaml
+ $STATUS_KO	sql/sysprefs.sql
 EOL
     my $r_v1_expected = <<EOL;
  $STATUS_KO	perl/i_fail_license.pl
@@ -156,6 +162,9 @@ EOL
 
  $STATUS_KO	i_fail_yaml.yaml
    $STATUS_KO	  yaml_valid
+
+ $STATUS_KO	sql/sysprefs.sql
+   $STATUS_KO	  sysprefs_order
 
 EOL
 

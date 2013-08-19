@@ -53,7 +53,10 @@ eval {
     $git->create_and_change_branch( 'qa-prev-commit' );
     $git->reset_hard_prev( $num_of_commits );
 
-    my @files = $modified_files->filter( qw< perl tt xml yaml > );
+    my @files = (
+        $modified_files->filter( { extension => [ qw< perl tt xml yaml > ] } ),
+        $modified_files->filter( { name => [ qw< sysprefs.sql > ] } )
+    );
 
     for my $f ( @files ) {
         $f->run_checks();
