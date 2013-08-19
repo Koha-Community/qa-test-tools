@@ -40,6 +40,11 @@ $c = 1 unless $c;
 my $num_of_commits = $c;
 
 my $git = QohA::Git->new();
+if ( @{$git->diff_log} ) {
+    say "Cannot launch QA tests: You have unstaged changes.\nPlease commit or stash them.";
+    exit 1;
+}
+
 our $branch = $git->branchname;
 my ( $new_fails, $already_fails, $skip, $error_code, $full ) = 0;
 
