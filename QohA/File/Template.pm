@@ -113,6 +113,7 @@ sub check_forbidden_patterns {
         {pattern => qr{ $}          , error => "trailing space char"},
         {pattern => qr{intranet-tmpl},error => "intranet-tmpl should certainly replaced with [% interface %]"},
         {pattern => qr{opac-tmpl}   , error => "opac-tmpl should certainly replaced with [% interface %]"},
+        {pattern => qr{jquery.dataTables.min.js}, error => "To include datatables files, please use the include file (see bug 10868)"},
     );
 
     my $errors = $self->SUPER::check_forbidden_patterns($cnt, \@forbidden_patterns);
