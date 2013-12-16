@@ -1,0 +1,10 @@
+[% USE KohaAuthorisedValues %]
+[% USE KohaBranchName %]
+
+<html>
+  <head>
+  </head>
+  <body>
+    foo/bar
+  </body>
+</html>

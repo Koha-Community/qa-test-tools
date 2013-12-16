@@ -114,6 +114,8 @@ sub check_forbidden_patterns {
         {pattern => qr{intranet-tmpl},error => "intranet-tmpl should certainly replaced with [% interface %]"},
         {pattern => qr{opac-tmpl}   , error => "opac-tmpl should certainly replaced with [% interface %]"},
         {pattern => qr{jquery.dataTables.min.js}, error => "To include datatables files, please use the include file (see bug 10868)"},
+        {pattern => qr{\[% USE ?KohaAuthorisedValues ?%\]}, error => "KohaAuthorisedValues plugin is deprecated (see bug 10626)"},
+        {pattern => qr{\[% USE ?KohaBranchName ?%\]}, error => "KohaBranchName plugin is deprecated (see bug 10626)"},
     );
 
     my $errors = $self->SUPER::check_forbidden_patterns($cnt, \@forbidden_patterns);
