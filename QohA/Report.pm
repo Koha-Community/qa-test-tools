@@ -62,7 +62,7 @@ sub to_string {
         if ( @diff ) {
             for my $d ( @diff ) {
                 next unless $d;  # if $d eq "" FIXME
-                next if $d =~ /^\d$/ and $d ~~ 1; # if $d == 1  We have to bring consistency for the returns of the check* routine
+                next if $d =~ /^\d$/ and $d == 1; # if $d == 1  We have to bring consistency for the returns of the check* routine
                 push @diff_ko, $d;
             }
             if ( @diff_ko ) {
@@ -91,7 +91,7 @@ sub diff {
     my ($before, $current) = @$errors;
 
     unless ( ref $current or ref $before ) {
-        if ( "$current" ~~ "$before" ) {
+        if ( "$current" == "$before" ) {
             return;
         }
         return ($current);
