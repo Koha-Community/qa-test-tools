@@ -44,23 +44,18 @@ sub filter {
 
     for my $type ( @$file_types ) {
         for my $f ( @{$self->files} ) {
-            given ( $type ) {
-                when (/perl/) {
-                    push @wanted_files, $f
-                        if ref $f eq 'QohA::File::Perl';
-                }
-                when (/xml/) {
-                    push @wanted_files, $f
-                        if ref $f eq 'QohA::File::XML';
-                }
-                when (/tt/) {
-                    push @wanted_files, $f
-                        if ref $f eq 'QohA::File::Template';
-                }
-                when (/yaml/) {
-                    push @wanted_files, $f
-                        if ref $f eq 'QohA::File::YAML';
-                }
+            if ( $type =~ /perl/ ) {
+                push @wanted_files, $f
+                    if ref $f eq 'QohA::File::Perl';
+            } elsif ( $type =~ /xml/) {
+                push @wanted_files, $f
+                    if ref $f eq 'QohA::File::XML';
+            } elsif ( $type =~ /tt/) {
+                push @wanted_files, $f
+                    if ref $f eq 'QohA::File::Template';
+            } elsif ( $type =~ /yaml/) {
+                push @wanted_files, $f
+                    if ref $f eq 'QohA::File::YAML';
             }
         }
     }
