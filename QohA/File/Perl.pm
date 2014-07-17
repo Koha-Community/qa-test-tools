@@ -162,6 +162,7 @@ sub check_forbidden_patterns {
         {pattern => qr{IndependantBranches}, error => "IndependantBranches is now known as IndependentBranches"},  # Bug 10080 renames IndependantBranches to IndependentBranches
         {pattern => qr{either version 2 of the License}, error => "Koha is now under the GPLv3 license"}, # see http://wiki.koha-community.org/wiki/Coding_Guidelines#Licence
         {pattern => qr{wthdrawn}, error => "wthdrawn should be replaced by withdrawn (see bug 10550)"},
+        {pattern => qr{template_name\s*=>.*\.tmpl}, error => "You should not use a .tmpl extension for the template name (see bug 11349)"},
     );
 
     return $self->SUPER::check_forbidden_patterns($cnt, \@forbidden_patterns);
