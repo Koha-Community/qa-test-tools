@@ -108,40 +108,40 @@ eval {
 EOL
     my $r_v1_expected = <<EOL;
  $STATUS_KO	perl/i_fail_license.pl
-   $STATUS_OK	  pod
-   $STATUS_KO	  forbidden patterns
-   $STATUS_OK	  valid
    $STATUS_OK	  critic
+   $STATUS_KO	  forbidden patterns
+   $STATUS_OK	  pod
+   $STATUS_OK	  valid
 
  $STATUS_KO	perl/i_fail_template_name.pl
+   $STATUS_OK	  critic
    $STATUS_KO	  forbidden patterns
    $STATUS_OK	  pod
    $STATUS_OK	  valid
-   $STATUS_OK	  critic
 
  $STATUS_KO	perl/i_fail_patterns.pl
-   $STATUS_OK	  pod
-   $STATUS_KO	  forbidden patterns
-   $STATUS_KO	  valid
    $STATUS_OK	  critic
+   $STATUS_KO	  forbidden patterns
+   $STATUS_OK	  pod
+   $STATUS_KO	  valid
 
  $STATUS_KO	perl/i_fail_compil.pl
-   $STATUS_OK	  pod
-   $STATUS_OK	  forbidden patterns
-   $STATUS_KO	  valid
    $STATUS_OK	  critic
+   $STATUS_OK	  forbidden patterns
+   $STATUS_OK	  pod
+   $STATUS_KO	  valid
 
  $STATUS_KO	perl/i_fail_critic.pl
-   $STATUS_OK	  pod
-   $STATUS_OK	  forbidden patterns
-   $STATUS_OK	  valid
    $STATUS_KO	  critic
+   $STATUS_OK	  forbidden patterns
+   $STATUS_OK	  pod
+   $STATUS_OK	  valid
 
  $STATUS_OK	perl/i_m_ok.pl
-   $STATUS_OK	  pod
-   $STATUS_OK	  forbidden patterns
-   $STATUS_OK	  valid
    $STATUS_OK	  critic
+   $STATUS_OK	  forbidden patterns
+   $STATUS_OK	  pod
+   $STATUS_OK	  valid
 
  $STATUS_KO	tmpl/i_fail_patterns_theme.tt
    $STATUS_KO	  forbidden patterns

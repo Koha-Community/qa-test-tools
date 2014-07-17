@@ -54,7 +54,8 @@ sub to_string {
     my ($status, $v1_status);
 
 
-    while ( my ($name, $results) = each %$tasks ) {
+    for my $name ( sort keys %$tasks ) {
+        my $results = $tasks->{$name};
         my @diff = $self->diff($results);
 
         my $task_status = $STATUS_OK;
