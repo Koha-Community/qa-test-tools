@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-our ($v, $d, $c, $nocolor, $help);
+our ($v, $d, $c, $nocolor, $help, $no_progress);
 
 BEGIN {
     use Getopt::Long;
@@ -11,6 +11,7 @@ BEGIN {
         'v:s' => \$v,
         'c:s' => \$c,
         'd' => \$d,
+        'no-progress' => \$no_progress,
         'nocolor' => \$nocolor,
         'h|help' => \$help,
     );
@@ -63,16 +64,30 @@ eval {
         $modified_files->filter( { name => [ qw< sysprefs.sql > ] } )
     );
 
+
+    my $i = 1;
+    say "Processing files before patches";
     for my $f ( @files ) {
+        unless ( $no_progress ) {
+            print_progress_bar( $i, scalar(@files) );
+            $i++;
+        }
         $f->run_checks();
     }
 
     $git->change_branch($branch);
     $git->delete_branch( 'qa-current-commit' );
     $git->create_and_change_branch( 'qa-current-commit' );
+    $i = 1;
+    say "\nProcessing files after patches";
     for my $f ( @files ) {
+        unless ( $no_progress ) {
+            print_progress_bar( $i, scalar(@files) );
+            $i++;
+        }
         $f->run_checks($num_of_commits);
     }
+    say "\n" unless $no_progress;
 
     for my $f ( @files ) {
         say $f->report->to_string({ verbosity => $v, color => not $nocolor });
@@ -86,6 +101,15 @@ if ($@) {
 $git->change_branch($branch);
 
 exit(0);
+
+sub print_progress_bar {
+    my ( $progress, $total ) = @_;
+    my $num_width = length $total;
+    print sprintf "|%-25s| %${num_width}s / %s (%.2f%%)\r",
+        '=' x (24*$progress/$total). '>',
+        $progress, $total, 100*$progress/+$total;
+    flush STDOUT;
+}
 
 __END__
 
