@@ -73,10 +73,11 @@ sub check_valid_template {
       $self->path =~ /opac-tmpl/
       ? 'opac'
       : 'intranet';
+    my $theme = $tmpl_type eq 'intranet' ? 'prog' : 'bootstrap';
     $template_dir =
       File::Spec->rel2abs("koha-tmpl/${tmpl_type}-tmpl/prog/en/modules");
     $include_dir =
-      File::Spec->rel2abs("koha-tmpl/${tmpl_type}-tmpl/prog/en/includes");
+      File::Spec->rel2abs("koha-tmpl/${tmpl_type}-tmpl/$theme/en/includes");
 
     my $tt = Template->new(
         {
