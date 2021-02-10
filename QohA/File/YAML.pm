@@ -2,7 +2,7 @@ package QohA::File::YAML;
 
 use Modern::Perl;
 use Moo;
-use YAML;
+use YAML::XS;
 
 use QohA::Report;
 extends 'QohA::File';
@@ -23,7 +23,7 @@ sub run_checks {
 sub check_parse_yaml {
     my ($self) = @_;
     return 0 unless -e $self->path;
-    eval { YAML::LoadFile($self->abspath); };
+    eval { YAML::XS::LoadFile($self->abspath); };
     return 0 unless $@;
 
     my @r;
